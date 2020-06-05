@@ -1,4 +1,4 @@
-# YeildScan Backend
+# YieldScan Backend
 
   ## Development
 
@@ -23,7 +23,7 @@
   ```
   npm run start
   ```
-  It uses nodemon for livereloading :peace-fingers:
+  It uses nodemon for livereloading ✌️
 
 
   ## Codebase Guide:
