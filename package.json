@@ -5,7 +5,6 @@
   "main": "src/app.ts",
   "scripts": {
     "build": "tsc",
-    "heroku-postbuild": "npm run build",
     "start": "nodemon",
     "inspect": "nodemon --inspect src/app.ts",
     "test": "jest",
@@ -22,7 +21,6 @@
     "kusama"
   ],
   "dependencies": {
-    "argon2": "^0.21.0",
     "body-parser": "^1.18.2",
     "celebrate": "^9.1.0",
     "cors": "^2.8.4",
@@ -31,15 +29,11 @@
     "event-dispatch": "^0.4.1",
     "eventemitter3": "^3.1.0",
     "express": "^4.16.2",
-    "express-basic-auth": "^1.2.0",
-    "express-jwt": "^5.3.1",
-    "jsonwebtoken": "^8.2.0",
     "lodash": "^4.17.13",
     "method-override": "^3.0.0",
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.23",
     "mongoose": "^5.7.5",
-    "morgan": "^1.9.1",
     "reflect-metadata": "^0.1.12",
     "typedi": "^0.8.0",
     "winston": "^3.2.1"
