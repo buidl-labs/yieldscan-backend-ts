@@ -1,94 +1,150 @@
-# Bulletproof Node.js architecture 🛡️
+# YeildScan Backend
 
-This is the example repository from the blog post ['Bulletproof node.js project architecture'](https://softwareontheroad.com/ideal-nodejs-project-structure?utm_source=github&utm_medium=readme)
+  ## Development
 
-Please read the blog post in order to have a good understanding of the server architecture.
+  We use `node` version `10.15.0`
 
-Also, I added lots of comments to the code that are not in the blog post, because they explain the implementation and the reason behind the choices of libraries and some personal opinions and some bad jokes.
+  ```
+  nvm install 10.15.0
+  ```
 
-The API by itself doesn't do anything fancy, it's just a user CRUD with authentication capabilities.
-Maybe we can transform this into something useful, a more advanced example, just open an issue and let's discuss the future of the repo.
+  ```
+  nvm use 10.15.0
+  ```
 
-## Development
+  The first time, you will need to run
 
-We use `node` version `10.15.0`
+  ```
+  npm install
+  ```
 
-```
-nvm install 10.15.0
-```
+  Then just start the server with
 
-```
-nvm use 10.15.0
-```
-
-The first time, you will need to run
-
-```
-npm install
-```
-
-Then just start the server with
-
-```
-npm run start
-```
-It uses nodemon for livereloading :peace-fingers:
-
-# API Validation
-
- By using celebrate the req.body schema becomes clary defined at route level, so even frontend devs can read what an API endpoint expects without need to writting a documentation that can get outdated quickly.
-
- ```js
- route.post('/signup',
-  celebrate({
-    body: Joi.object({
-      name: Joi.string().required(),
-      email: Joi.string().required(),
-      password: Joi.string().required(),
-    }),
-  }),
-  controller.signup)
- ```
-
- **Example error**
-
- ```json
- {
-  "errors": {
-    "message": "child \"email\" fails because [\"email\" is required]"
-  }
- }
- ```
-
-[Read more about celebrate here](https://github.com/arb/celebrate) and [the Joi validation API](https://github.com/hapijs/joi/blob/v15.0.1/API.md)
-
-# Roadmap
-- [x] API Validation layer (Celebrate+Joi)
-- [ ] Unit tests examples
-- [ ] [Cluster mode](https://softwareontheroad.com/nodejs-scalability-issues?utm_source=github&utm_medium=readme)
-- [x] The logging _'layer'_
-- [x] Continuous integration with CircleCI 😍
-- [ ] Deploys script and docs for AWS Elastic Beanstalk and Heroku
-- [ ] Integration test with newman 😉
-- [ ] Instructions on typescript debugging with VSCode
+  ```
+  npm run start
+  ```
+  It uses nodemon for livereloading :peace-fingers:
 
 
-# FAQ
+  ## Codebase Guide:
 
- ## Where should I put the FrontEnd code? Is this a good backend for Angular or React or Vue or _whatever_ ?
+  ### Git commit
+  - Run `npm run git:commit` for commiting your code and follow the process
 
-  [It's not a good idea to have node.js serving static assets a.k.a the frontend](https://softwareontheroad.com/nodejs-scalability-issues?utm_source=github&utm_medium=readme)
+  ### How to create route?
+  - Create `route` file: `src/api/routes/<your-route-name>.ts`
 
-  Also, I don't wanna take part in frontend frameworks wars 😅
+  Example:
+  ```javascript
+    import { Router, Request, Response } from 'express';
+    const route = Router();
 
-  Just use the frontend framework you like the most _or hate the least_. It will work 😁
+    export default (app: Router) => {
+      // Register our endpoint for this route-apis
+      app.use('/validator', route);
 
- ## Don't you think you can add X layer to do Y? Why do you still use express if the Serverless Framework is better and it's more reliable?
+      route.get('/', (req: Request, res: Response) => {
+        return res.json({ validators: [] }).status(200);
+      });
+    };
+  ```
+  - Register your created route in `src/api/routes/index.ts` by passing it the appInstance
 
-  I know this is not a perfect architecture but it's the most scalable that I know with less code and headache that I know.
+  ### How to add/use services?
+  - Create `service` file (if not exists): `src/services/<service-name>.ts`
 
-  It's meant for small startups or one-developer army projects.
+  Example:
+  ```javascript
+    import { Service, Inject } from 'typedi';
+    import SomeOtherService from './some-other-service';
+    import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
 
-  I know if you start moving layers into another technology, you will end up with your business/domain logic into npm packages, your routing layer will be pure AWS Lambda functions and your data layer a combination of DynamoDB, Redis, maybe redshift, and Agolia.
+    @Service()
+    export default class YourService {
+      constructor(
+          // inject mongoose models that you've registered in your containers
+          @Inject('validatorModel') private validatorModel : Models.ValidatorModel,
 
-  Take a deep breath and go slowly, let the business grow and then scale up your product. You will need a team and talented developers anyway.
+          // if you wish to use some other service in this service
+          private someOtherService: SomeOtherService,
+
+          // if you wish to dispatch events from this service
+          @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
+      ) {}
+    };
+
+  ```
+  - Use your service by passing it through DI Container
+
+  Example:
+  ```javascript
+    import YourService from 'services/your-service';
+
+    const yourServiceInstance = Container.get(YourService);
+  ```
+
+  ### How to create/use subcribers?
+  - Create `subscriber` file (if not exists): `src/subscribers/<subscriber-name>.ts`
+
+  Example:
+  ```javascript
+    import { Container } from 'typedi';
+    import { EventSubscriber, On } from 'event-dispatch';
+
+    @EventSubscriber()
+    export default class YourSubscriber {
+      @On(events.eventGroup.someEvent)
+      public eventHandlerForTheAboveEvent({ params }) {
+        // do stuff
+      }
+    };
+
+  ```
+  - Trigger an event from anywhere (preferably a service) in the app using the `eventDispatcher` instance
+
+  Example:
+  ```javascript
+    eventDispatcher.dispatch(events.eventGroup.someEvent, { ...eventParams });
+  ```
+
+  ### How to create new models?
+  - Create `definition` file: `src/models/definitions/<definition-name>.ts`
+  Example:
+  ```javascript
+    export default {
+      name: {
+        type: String,
+        required: true,
+        index: true
+      },
+    };
+  ```
+
+  - Create interface for this model: `src/interfaces/<interface-name>.ts`
+  Example:
+  ```javascript
+    interface IValidator {
+      // fields here
+    };
+  ```
+
+  - Create `model` file: `src/models/<model-name>.ts`
+  Example:
+  ```javascript
+    import { IValidator } from '../interfaces/IValidator';
+    import ValidatorDefinition from './definitions/validator.ts';
+    import mongoose from 'mongoose';
+
+    const Validator = new mongoose.Schema(ValidatorDefinition, { timestamps: true });
+
+    export default mongoose.model<IValidator & mongoose.Document>('Validator', Validator);
+
+  ```
+  - Register the mongoose model and the interface globally for TS under `src/types/express/index.d.ts`
+
+  - Register the model into the DI Container by adding it to `models` array: `src/loaders/index.ts`
+
+  - To use the model anywhere:
+  ```javascript
+    const modelInstance = Container.get('modelName');
+  ```
