@@ -1,13 +1,12 @@
-import { Document, Model } from 'mongoose';
-import { IValidator } from '../../interfaces/IValidator';
 declare global {
   namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
     export interface Request {
-      currentUser: IValidator & Document;
+      // Anything you ever join with the express' request object
     }
   }
 
   namespace Models {
-    export type UserModel = Model<IValidator & Document>;
+    // Example: export type SomeModel = Model<ModelInterface & Document>;
   }
 }
