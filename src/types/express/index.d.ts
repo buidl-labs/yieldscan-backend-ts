@@ -1,13 +1,13 @@
 import { Document, Model } from 'mongoose';
-import { IUser } from '../../interfaces/IUser';
+import { IValidator } from '../../interfaces/IValidator';
 declare global {
   namespace Express {
     export interface Request {
-      currentUser: IUser & Document;
-    }    
+      currentUser: IValidator & Document;
+    }
   }
 
   namespace Models {
-    export type UserModel = Model<IUser & Document>;
+    export type UserModel = Model<IValidator & Document>;
   }
 }

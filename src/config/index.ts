@@ -10,21 +10,18 @@ if (envFound.error) {
   throw new Error("⚠️  Couldn't find .env file  ⚠️");
 }
 
+const DEFAULT_PORT = '3000';
+
 export default {
   /**
    * Your favorite port
    */
-  port: parseInt(process.env.PORT, 10),
+  port: parseInt(process.env.PORT || DEFAULT_PORT, 10),
 
   /**
    * That long string from mongo atlas
    */
   databaseURL: process.env.MONGODB_URI,
-
-  /**
-   * Your secret sauce
-   */
-  jwtSecret: process.env.JWT_SECRET,
 
   /**
    * Used by winston logger
@@ -39,5 +36,4 @@ export default {
   api: {
     prefix: '/api',
   },
-
 };

@@ -1,7 +1,5 @@
-import attachCurrentUser from './attachCurrentUser';
-import isAuth from './isAuth';
+/**
+ * Export any express-middlewares to be used from this file
+ */
 
-export default {
-  attachCurrentUser,
-  isAuth,
-};
+export default {};

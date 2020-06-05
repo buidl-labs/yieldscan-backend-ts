@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import auth from './routes/auth';
-import user from './routes/user';
+import validator from './routes/validator';
 
 // guaranteed to get dependencies
 export default () => {
-	const app = Router();
-	auth(app);
-	user(app);
+  const app = Router();
 
-	return app
-}
+  /**
+   * Register any routing-middleware here by giving it access to the express-app
+   */
+  validator(app);
+
+  return app;
+};
