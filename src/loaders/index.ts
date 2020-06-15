@@ -21,7 +21,7 @@ export default async ({ expressApp }) => {
     {
       name: 'userModel',
       // Notice the require syntax and the '.default'
-      model: require('../models/user').default,
+      model: require('../models/validator').default,
     },
   ];
 
