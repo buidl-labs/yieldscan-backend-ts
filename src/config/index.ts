@@ -37,12 +37,15 @@ export default {
     prefix: '/api',
   },
   wsProviderUrl: process.env.WS_PROVIDER_URL || 'wss://kusama-rpc.polkadot.io',
-  
-  crawlers: [
 
+  crawlers: [
     {
       enabled: process.env.CRAWLER_ERA_POINTS_HISTORY_ENABLE,
       module: require('../services/crawlers/historyData'),
-    }
-  ]
+    },
+    {
+      enabled: process.env.CRAWLER_NEXT_ELECTED,
+      module: require('../services/crawlers/nextElected'),
+    },
+  ],
 };
