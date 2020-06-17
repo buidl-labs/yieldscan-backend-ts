@@ -1,4 +1,5 @@
 import ValidatorHistory from '../../models/validatorHistory';
+import NextElected from '../../models/NextElected';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { wait, scaleData, normalizeData } from '../utils';
 
@@ -13,7 +14,15 @@ module.exports = {
     await module.exports.getRiskScore(stakingInfo);
     console.log(stakingInfo);
     console.log('stop nextElected');
+
+    // save next elected information
+    try {
+      await NextElected.insertMany(stakingInfo);
+    } catch (error) {
+      console.log(error);
+    }
   },
+
   getStakingInfo: async function (api, nextElected): Promise<Array<IStakingInfo>> {
     await wait(5000);
     const stakingInfo = await Promise.all(nextElected.map((valId) => api.derive.staking.account(valId)));
@@ -43,6 +52,7 @@ module.exports = {
       };
     });
   },
+
   getEstimatedPoolReward: async function (api, nextElected, stakingInfo: Array<IStakingInfo>) {
     await wait(5000);
     const count = 15;
@@ -102,6 +112,7 @@ module.exports = {
       }
     });
   },
+
   getRiskScore: async function (stakingInfo: Array<IStakingInfo>) {
     console.log('waiting 5 secs');
     await wait(5000);
