@@ -1,22 +1,26 @@
 import ValidatorHistory from '../../models/validatorHistory';
-import NextElected from '../../models/NextElected';
+// import NextElected from '../../models/NextElected';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { wait, scaleData, normalizeData } from '../utils';
+import mongoose from 'mongoose';
+import { Container } from 'typedi';
 
 module.exports = {
   start: async function (api) {
-    console.log('start nextElected');
+    // console.log('start nextElected');
     const nextElected = await api.derive.staking.nextElected();
     // console.log(JSON.stringify(nextElected));
     const stakingInfo = await module.exports.getStakingInfo(api, nextElected);
     // console.log(stakingInfo);
     await module.exports.getEstimatedPoolReward(api, nextElected, stakingInfo);
     await module.exports.getRiskScore(stakingInfo);
-    console.log(stakingInfo);
-    console.log('stop nextElected');
+    // console.log(stakingInfo);
+    // console.log('stop nextElected');
 
     // save next elected information
+    const NextElected = Container.get('NextElected') as mongoose.Model<IStakingInfo & mongoose.Document>;
     try {
+      await NextElected.deleteMany({});
       await NextElected.insertMany(stakingInfo);
     } catch (error) {
       console.log(error);
@@ -55,20 +59,20 @@ module.exports = {
 
   getEstimatedPoolReward: async function (api, nextElected, stakingInfo: Array<IStakingInfo>) {
     await wait(5000);
-    const count = 15;
-    console.log(count);
+    // const count = 15;
+    // console.log(count);
     const nextElectedArr = nextElected.map((x) => x.toString());
-    console.log(nextElectedArr);
+    // console.log(nextElectedArr);
     const lastIndexDB = await ValidatorHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     const lastIndexDBTotalReward = lastIndexDB[0].totalReward;
     // keep last EraIndex from Db in memory
-    console.log(lastIndexDBTotalReward);
+    // console.log(lastIndexDBTotalReward);
     // const arr = [...Array(count).keys()].map((i) => lastEraIndexDB - i);
     // const historyData = await ValidatorHistory.find({ eraIndex: { $in: arr } })
     //   .select(['eraPoints', 'totalEraPoints', 'stashId', 'totalReward', 'slashCount'])
     //   .lean();
     // console.log(historyData);
-    // await ValidatorHistory.deleteMany({ eraIndex: 923 });
+    // await ValidatorHistory.deleteMany({ eraIndex: 924 });
 
     const historyData = await ValidatorHistory.aggregate([
       {
@@ -109,6 +113,10 @@ module.exports = {
         x.estimatedPoolReward = requiredData[0].estimatedPoolReward;
         x.activeErasCount = requiredData[0].activeErasCount;
         x.totalSlashCount = requiredData[0].totalSlashCount;
+        x.rewardsPer100KSM =
+          // eslint-disable-next-line prettier/prettier
+          (x.estimatedPoolReward / Math.pow(10, 12)) -
+          (x.estimatedPoolReward / Math.pow(10, 12)) * (x.commission / Math.pow(10, 9)) * (100 / (x.totalStake + 100));
       }
     });
   },
@@ -122,7 +130,7 @@ module.exports = {
     const minOwnStake = Math.min(...stakingInfo.map((x) => x.ownStake));
     const maxOthersStake = Math.max(...stakingInfo.map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)));
     const minOthersStake = Math.min(...stakingInfo.map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)));
-    console.log(maxNomCount, minNomCount, maxOwnStake, minOwnStake);
+    // console.log(maxNomCount, minNomCount, maxOwnStake, minOwnStake);
     const riskScoreArr = [];
     stakingInfo.forEach((element) => {
       const otherStake = element.nominators.reduce((a, b) => a + b.stake, 0);

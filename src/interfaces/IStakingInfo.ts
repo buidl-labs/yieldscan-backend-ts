@@ -1,4 +1,5 @@
 export interface IStakingInfo {
+  rewardsPer100KSM: number;
   riskScore: number;
   estimatedPoolReward: number;
   activeErasCount: number;

@@ -5,8 +5,8 @@ module.exports = {
   start: async function (api) {
     console.log('start historyData');
     const eraIndex = await module.exports.getEraIndexes(api);
-    console.log('eraIndex');
-    console.log(eraIndex);
+    // console.log('eraIndex');
+    // console.log(eraIndex);
     if (eraIndex.length !== 0) {
       await module.exports.storeValidatorHistory(api, eraIndex);
     }

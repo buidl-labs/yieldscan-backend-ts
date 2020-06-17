@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import validator from './routes/validator';
+import reward from './routes/reward';
 
 // guaranteed to get dependencies
 export default () => {
@@ -8,7 +8,7 @@ export default () => {
   /**
    * Register any routing-middleware here by giving it access to the express-app
    */
-  validator(app);
+  reward(app);
 
   return app;
 };

@@ -19,9 +19,14 @@ export default async ({ expressApp }) => {
 
   const models = [
     {
-      name: 'userModel',
+      name: 'NextElected',
       // Notice the require syntax and the '.default'
-      model: require('../models/validator').default,
+      model: require('../models/nextElected').default,
+    },
+    {
+      name: 'ValidatorHistory',
+      // Notice the require syntax and the '.default'
+      model: require('../models/validatorHistory').default,
     },
   ];
 

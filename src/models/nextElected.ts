@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { IStakingInfo } from '../interfaces/IStakingInfo';
 const NextElected = new mongoose.Schema(
   {
     riskScore: Number,
@@ -20,4 +21,4 @@ const NextElected = new mongoose.Schema(
   },
   { timestamps: true },
 );
-export default mongoose.model('nextElected', NextElected);
+export default mongoose.model<IStakingInfo & mongoose.Document>('nextElected', NextElected);

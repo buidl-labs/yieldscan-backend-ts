@@ -1,5 +1,7 @@
-/**
- * Export any express-middlewares to be used from this file
- */
+import max_set from './max_set';
+import risk_set from './risk_set';
 
-export default {};
+export default {
+  max_set,
+  risk_set,
+};
