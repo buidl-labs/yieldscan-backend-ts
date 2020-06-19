@@ -12,6 +12,7 @@ const NextElected = new mongoose.Schema(
     commission: Number,
     totalStake: Number,
     ownStake: Number,
+    rewardsPer100KSM: Number,
     nominators: [
       {
         nomId: String,

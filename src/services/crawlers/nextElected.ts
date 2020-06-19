@@ -12,19 +12,19 @@ module.exports = {
     // console.log(JSON.stringify(nextElected));
     const stakingInfo = await module.exports.getStakingInfo(api, nextElected);
     // console.log(stakingInfo);
-    await module.exports.getEstimatedPoolReward(api, nextElected, stakingInfo);
-    await module.exports.getRiskScore(stakingInfo);
-    // console.log(stakingInfo);
-    // console.log('stop nextElected');
+    const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, nextElected, stakingInfo);
+    await module.exports.getRiskScore(stakingInfoWithRewards);
+    // console.log(stakingInfoWithRewards);
 
     // save next elected information
     const NextElected = Container.get('NextElected') as mongoose.Model<IStakingInfo & mongoose.Document>;
     try {
       await NextElected.deleteMany({});
-      await NextElected.insertMany(stakingInfo);
+      await NextElected.insertMany(stakingInfoWithRewards);
     } catch (error) {
       console.log(error);
     }
+    console.log('stop nextElected');
   },
 
   getStakingInfo: async function (api, nextElected): Promise<Array<IStakingInfo>> {
@@ -72,7 +72,7 @@ module.exports = {
     //   .select(['eraPoints', 'totalEraPoints', 'stashId', 'totalReward', 'slashCount'])
     //   .lean();
     // console.log(historyData);
-    // await ValidatorHistory.deleteMany({ eraIndex: 924 });
+    // await ValidatorHistory.deleteMany({ eraIndex: 930 });
 
     const historyData = await ValidatorHistory.aggregate([
       {
@@ -109,16 +109,26 @@ module.exports = {
         x.estimatedPoolReward = historyData.reduce((a, b) => a + b.avgEraPointsFraction, 0) / historyData.length;
         x.activeErasCount = 0;
         x.totalSlashCount = 0;
+        const poolReward = x.estimatedPoolReward / Math.pow(10, 12);
+        const totalStake = x.totalStake / Math.pow(10, 12);
+        const commission = x.commission / Math.pow(10, 9);
+        x.rewardsPer100KSM =
+          // eslint-disable-next-line prettier/prettier
+          (poolReward - (commission * poolReward)) * 100 / (100 + totalStake);
       } else {
         x.estimatedPoolReward = requiredData[0].estimatedPoolReward;
         x.activeErasCount = requiredData[0].activeErasCount;
         x.totalSlashCount = requiredData[0].totalSlashCount;
+        const poolReward = x.estimatedPoolReward / Math.pow(10, 12);
+        const totalStake = x.totalStake / Math.pow(10, 12);
+        const commission = x.commission / Math.pow(10, 9);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier
-          (x.estimatedPoolReward / Math.pow(10, 12)) -
-          (x.estimatedPoolReward / Math.pow(10, 12)) * (x.commission / Math.pow(10, 9)) * (100 / (x.totalStake + 100));
+          (poolReward - (commission * poolReward)) * 100 / (100 + totalStake);
       }
     });
+    // console.log(stakingInfo);
+    return stakingInfo;
   },
 
   getRiskScore: async function (stakingInfo: Array<IStakingInfo>) {
@@ -150,7 +160,7 @@ module.exports = {
       });
       // console.log('stashId: ' + element.stashId.toString() + ' slashScore: ' + slashScore.toFixed(3) + ' backersScore: ' + backersScore.toFixed(3) + ' ownStake: ' + validatorOwnRisk +' otherStake: '+  (1 / scaleData(otherStake, maxOthS, minOthS)).toFixed(3) + ' riskScore: ' + riskScore.toFixed(3) )
     });
-    console.log(riskScoreArr);
+    // console.log(riskScoreArr);
     const maxRS = Math.max(...riskScoreArr.map((x) => x.riskScore));
     const minRS = Math.min(...riskScoreArr.map((x) => x.riskScore));
     stakingInfo.map((x) => {
