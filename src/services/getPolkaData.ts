@@ -16,13 +16,14 @@ export default class GetPolkaData {
 
     // const pool = await this.getPool();
 
-    let api = await this.getPolkadotAPI();
+    const api = await this.getPolkadotAPI();
 
     // logger.info('Running crawlers');
     // logger.info(this.config.crawlers)
 
-    const crawlers = this.config.crawlers.filter((crawler) => crawler.enabled);
-    // .forEach((crawler) => crawler.module.start(api));
+    const crawlers = this.config.crawlers.filter((crawler) => crawler.enabled == 'true');
+    console.log('crawlers', crawlers);
+    // crawlers.forEach((crawler) => crawler.module.start(api));
     for (let i = 0; i < crawlers.length; i++) {
       await crawlers[i].module.start(api);
       await wait(5000);

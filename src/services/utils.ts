@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { IStakingInfo } from '../interfaces/IStakingInfo';
 
 export async function wait(ms: number): Promise<void> {
@@ -11,7 +12,7 @@ export function scaleData(val: number, max: number, min: number): number {
 export function normalizeData(val: number, max: number, min: number): number {
   return (val - min) / (max - min);
 }
-export function sortLowRisk(arr: Array<IStakingInfo>): Array<IStakingInfo>{
+export function sortLowRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
   const lowestRiskset = arr.filter((x) => x.riskScore < 0.3);
   // console.log(lowestRiskset)
   const medRiskSet = arr.filter((x) => x.riskScore >= 0.3 && x.riskScore < 0.5);
@@ -29,3 +30,33 @@ export function sortMedRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
   const result = medRiskSet.concat(remaining);
   return result;
 }
+
+// Todo save and fetch reused data in a file
+
+// export function jsonReader(filePath, cb) {
+//   fs.readFile(filePath, (err, fileData) => {
+//     if (err) {
+//       return cb && cb(err);
+//     }
+//     try {
+//       const object = JSON.parse(fileData);
+//       return cb && cb(null, object);
+//     } catch (err) {
+//       return cb && cb(err);
+//     }
+//   });
+// }
+
+// export function saveTotalRewardLastIndexInfo(lastIndex: number) {
+//   jsonReader('../lastIndexInfo.json', (err, lastIndexInfo) => {
+//     if (err) {
+//       console.log('Error reading file:', err);
+//       return;
+//     }
+//     // increase customer order count by 1
+//     lastIndexInfo.totalRewardLastIndex = lastIndex;
+//     fs.writeFile('./lastIndexInfo.json', JSON.stringify(lastIndexInfo), (err) => {
+//       if (err) console.log('Error writing file:', err);
+//     });
+//   });
+// }

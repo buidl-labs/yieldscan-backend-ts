@@ -44,6 +44,10 @@ export default {
       module: require('../services/crawlers/historyData'),
     },
     {
+      enabled: process.env.CRAWLER_TOTAL_REWARD_HISTORY,
+      module: require('../services/crawlers/historyTotalRewards'),
+    },
+    {
       enabled: process.env.CRAWLER_NEXT_ELECTED,
       module: require('../services/crawlers/nextElected'),
     },

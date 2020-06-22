@@ -28,6 +28,11 @@ export default async ({ expressApp }) => {
       // Notice the require syntax and the '.default'
       model: require('../models/validatorHistory').default,
     },
+    {
+      name: 'TotalRewardHistory',
+      // Notice the require syntax and the '.default'
+      model: require('../models/totalRewardHistory').default,
+    },
   ];
 
   await dependencyInjectorLoader({
