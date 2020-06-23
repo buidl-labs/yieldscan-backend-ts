@@ -3,6 +3,7 @@ export interface IValidatorHistory {
   eraIndex: number;
   commission: number;
   eraPoints: number;
+  slashCount: number;
   totalEraPoints: number;
   nominatorsInfo: [
     {

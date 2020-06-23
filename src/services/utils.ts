@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { IStakingInfo } from '../interfaces/IStakingInfo';
 
 export async function wait(ms: number): Promise<void> {
@@ -13,22 +12,28 @@ export function normalizeData(val: number, max: number, min: number): number {
   return (val - min) / (max - min);
 }
 export function sortLowRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
-  const lowestRiskset = arr.filter((x) => x.riskScore < 0.3);
-  // console.log(lowestRiskset)
-  const medRiskSet = arr.filter((x) => x.riskScore >= 0.3 && x.riskScore < 0.5);
-  // console.log(medRiskSet)
-  const lowMedSet = lowestRiskset.concat(medRiskSet);
-  const remaining = arr.filter((n) => !lowMedSet.includes(n));
-  const result = lowMedSet.concat(remaining);
-  return result;
+  const lowestRiskset = arr.filter((x) => x.riskScore < 0.3 && x.commission !== 1);
+
+  // Uncomment below if you want to include include suggestions from other risk-sets
+
+  // const medRiskSet = arr.filter((x) => x.riskScore >= 0.3 && x.riskScore < 0.5);
+  // // console.log(medRiskSet)
+  // const lowMedSet = lowestRiskset.concat(medRiskSet);
+  // const remaining = arr.filter((n) => !lowMedSet.includes(n));
+  // const result = lowMedSet.concat(remaining);
+  // return result;
+  return lowestRiskset;
 }
 
 export function sortMedRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
-  const medRiskSet = arr.filter((x) => x.riskScore < 0.5);
-  // console.log(medRiskSet)
-  const remaining = arr.filter((n) => !medRiskSet.includes(n));
-  const result = medRiskSet.concat(remaining);
-  return result;
+  const medRiskSet = arr.filter((x) => x.riskScore < 0.5 && x.commission !== 1);
+
+  // Uncomment below if you want to include include suggestions from other risk-sets
+
+  // const remaining = arr.filter((n) => !medRiskSet.includes(n));
+  // const result = medRiskSet.concat(remaining);
+  // return result;
+  return medRiskSet;
 }
 
 // Todo save and fetch reused data in a file

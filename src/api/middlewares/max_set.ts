@@ -16,6 +16,7 @@ const max_set = async (req, res, next) => {
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 9);
       x.totalStake = x.totalStake / Math.pow(10, 12);
+      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
     });
     if (!(sortedData.length > 0)) {
       res.json([]);

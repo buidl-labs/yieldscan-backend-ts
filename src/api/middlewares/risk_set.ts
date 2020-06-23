@@ -41,13 +41,11 @@ const risk_set = async (req, res, next) => {
     // console.log('medRiskSortArr', medRiskSortArr);
 
     // console.log(sortedData)
-    const lowriskset = lowRiskSortArr.slice(0, 16);
-    const medriskset = medRiskSortArr.slice(0, 16);
+
     const highriskset = arr1.slice(0, 16);
-    // console.log(result)
     const result = {
-      lowriskset: lowriskset,
-      medriskset: medriskset,
+      lowriskset: lowRiskSortArr.length > 16 ? lowRiskSortArr.slice(0, 16) : lowRiskSortArr,
+      medriskset: medRiskSortArr.length > 16 ? medRiskSortArr.slice(0, 16) : medRiskSortArr,
       highriskset: highriskset,
       totalset: arr1,
     };

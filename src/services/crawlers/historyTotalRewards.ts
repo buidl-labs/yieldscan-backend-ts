@@ -1,7 +1,8 @@
 import { Container } from 'typedi';
 
-import TotalRewardHistory from '../../models/totalRewardHistory';
 import { wait } from '../utils';
+import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
+import mongoose from 'mongoose';
 
 module.exports = {
   start: async function (api) {
@@ -11,7 +12,7 @@ module.exports = {
     Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
       const rewards = await module.exports.getRewards(api, eraIndex);
-      const rewardsWithEraIndex = eraIndex.map((x, index) => {
+      const rewardsWithEraIndex: Array<ITotalRewardHistory> = eraIndex.map((x, index) => {
         const totalReward = rewards[index];
         if (totalReward !== null) {
           return {
@@ -22,9 +23,14 @@ module.exports = {
       });
 
       // Todo: wrap in try catch
-      await TotalRewardHistory.insertMany(rewardsWithEraIndex);
+      if (rewardsWithEraIndex.length !== 0) {
+        const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
+          ITotalRewardHistory & mongoose.Document
+        >;
+        await TotalRewardHistory.insertMany(rewardsWithEraIndex);
+      }
     }
-    Logger.info('stop historyData');
+    Logger.info('stop historyTotalRewards');
   },
 
   getRewards: async function (api, eraIndex) {
@@ -42,6 +48,9 @@ module.exports = {
 
   getEraIndexes: async function (api) {
     const Logger = Container.get('logger');
+    const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
+      ITotalRewardHistory & mongoose.Document
+    >;
     // get the latest eraIndex from the DB
     const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     Logger.debug(lastIndexDB);
