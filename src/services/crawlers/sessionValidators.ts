@@ -120,7 +120,7 @@ module.exports = {
           (poolReward - (commission * poolReward)) * 100 / (100 + totalStake);
       }
     });
-    Logger.debug(stakingInfo);
+    // Logger.debug(stakingInfo);
     return stakingInfo;
   },
 
