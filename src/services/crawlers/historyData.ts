@@ -8,9 +8,6 @@ module.exports = {
   start: async function (api) {
     const Logger = Container.get('logger');
     Logger.info('start historyData');
-    const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
-    // await ValidatorHistory.deleteMany({ eraIndex: 947 });
-    await ValidatorHistory.deleteMany({ eraIndex: 948 });
     const eraIndex = await module.exports.getEraIndexes(api);
     Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {

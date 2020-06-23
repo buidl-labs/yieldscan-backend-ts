@@ -48,6 +48,10 @@ export default {
       module: require('../services/crawlers/historyTotalRewards'),
     },
     {
+      enabled: process.env.CRAWLER_ACCOUNT_IDENTITY,
+      module: require('../services/crawlers/accountIdentity'),
+    },
+    {
       enabled: process.env.CRAWLER_NEXT_ELECTED,
       module: require('../services/crawlers/nextElected'),
     },

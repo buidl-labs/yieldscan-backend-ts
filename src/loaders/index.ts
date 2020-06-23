@@ -33,6 +33,11 @@ export default async ({ expressApp }) => {
       // Notice the require syntax and the '.default'
       model: require('../models/totalRewardHistory').default,
     },
+    {
+      name: 'AccountIdentity',
+      // Notice the require syntax and the '.default'
+      model: require('../models/accountIdentity').default,
+    },
   ];
 
   await dependencyInjectorLoader({
