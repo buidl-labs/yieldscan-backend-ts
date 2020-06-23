@@ -11,9 +11,9 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('start sessionValidators');
     const sessionValidators = await api.query.session.validators();
-    Logger.debug(sessionValidators);
+    // Logger.debug(sessionValidators);
     const stakingInfo = await module.exports.getStakingInfo(api, sessionValidators);
-    Logger.debug(stakingInfo);
+    // Logger.debug(stakingInfo);
     const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, sessionValidators, stakingInfo);
     await module.exports.getRiskScore(stakingInfoWithRewards);
 

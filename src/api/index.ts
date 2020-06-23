@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import reward from './routes/reward';
+import actors from './routes/actors';
 
 // guaranteed to get dependencies
 export default () => {
@@ -9,6 +10,7 @@ export default () => {
    * Register any routing-middleware here by giving it access to the express-app
    */
   reward(app);
+  actors(app);
 
   return app;
 };

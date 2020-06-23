@@ -9,7 +9,7 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('start historyData');
     const eraIndex = await module.exports.getEraIndexes(api);
-    Logger.debug(eraIndex);
+    // Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
       await module.exports.storeValidatorHistory(api, eraIndex);
     }
@@ -34,11 +34,11 @@ module.exports = {
     const Logger = Container.get('logger');
     const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
     const lastIndexDB = await ValidatorHistory.find({}).sort({ eraIndex: -1 }).limit(1);
-    Logger.debug(lastIndexDB);
+    // Logger.debug(lastIndexDB);
     const historyDepth = await api.query.staking.historyDepth();
     const currentEra = await api.query.staking.currentEra();
     const lastAvailableEra = currentEra - historyDepth;
-    Logger.debug('lastAvailableEra', lastAvailableEra);
+    // Logger.debug('lastAvailableEra', lastAvailableEra);
 
     // check whether there is any previous data available inside the DB
     if (lastIndexDB.length !== 0) {
@@ -56,8 +56,8 @@ module.exports = {
   storeValidatorHistory: async function (api, eraIndex) {
     const Logger = Container.get('logger');
     const erasRewardPointsArr = await Promise.all(eraIndex.map(async (i) => api.query.staking.erasRewardPoints(i)));
-    Logger.debug('erasRewardPointsArr');
-    Logger.debug(erasRewardPointsArr);
+    // Logger.debug('erasRewardPointsArr');
+    // Logger.debug(erasRewardPointsArr);
     const pointsHistory = eraIndex.map((i, index) => {
       return { eraIndex: i, erasRewardPoints: erasRewardPointsArr[index].toJSON() };
     });

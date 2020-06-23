@@ -9,7 +9,7 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('start historyTotalRewads');
     const eraIndex = await module.exports.getEraIndexes(api);
-    Logger.debug(eraIndex);
+    // Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
       const rewards = await module.exports.getRewards(api, eraIndex);
       const rewardsWithEraIndex: Array<ITotalRewardHistory> = eraIndex.map((x, index) => {
@@ -53,11 +53,11 @@ module.exports = {
     >;
     // get the latest eraIndex from the DB
     const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(1);
-    Logger.debug(lastIndexDB);
+    // Logger.debug(lastIndexDB);
     const historyDepth = await api.query.staking.historyDepth();
     const currentEra = await api.query.staking.currentEra();
     const lastAvailableEra = currentEra - historyDepth;
-    Logger.debug(lastAvailableEra);
+    // Logger.debug(lastAvailableEra);
 
     // check whether there is any previous data available inside the DB
     if (lastIndexDB.length !== 0) {

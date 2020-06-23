@@ -11,9 +11,9 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('start nextElected');
     const nextElected = await api.derive.staking.nextElected();
-    Logger.debug(nextElected);
+    // Logger.debug(nextElected);
     const stakingInfo = await module.exports.getStakingInfo(api, nextElected);
-    Logger.debug(stakingInfo);
+    // Logger.debug(stakingInfo);
     const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, nextElected, stakingInfo);
     await module.exports.getRiskScore(stakingInfoWithRewards);
 
@@ -120,7 +120,7 @@ module.exports = {
           (poolReward - (commission * poolReward)) * 100 / (100 + totalStake);
       }
     });
-    Logger.debug(stakingInfo);
+    // Logger.debug(stakingInfo);
     return stakingInfo;
   },
 
