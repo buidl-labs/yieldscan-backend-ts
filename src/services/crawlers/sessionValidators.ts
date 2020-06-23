@@ -9,28 +9,28 @@ import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 module.exports = {
   start: async function (api) {
     const Logger = Container.get('logger');
-    Logger.info('start nextElected');
-    const nextElected = await api.derive.staking.nextElected();
-    Logger.debug(nextElected);
-    const stakingInfo = await module.exports.getStakingInfo(api, nextElected);
+    Logger.info('start sessionValidators');
+    const sessionValidators = await api.query.session.validators();
+    Logger.debug(sessionValidators);
+    const stakingInfo = await module.exports.getStakingInfo(api, sessionValidators);
     Logger.debug(stakingInfo);
-    const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, nextElected, stakingInfo);
+    const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, sessionValidators, stakingInfo);
     await module.exports.getRiskScore(stakingInfoWithRewards);
 
     // save next elected information
-    const NextElected = Container.get('NextElected') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const SessionValidators = Container.get('SessionValidators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     try {
-      await NextElected.deleteMany({});
-      await NextElected.insertMany(stakingInfoWithRewards);
+      await SessionValidators.deleteMany({});
+      await SessionValidators.insertMany(stakingInfoWithRewards);
     } catch (error) {
       Logger.error(error);
     }
-    Logger.info('stop nextElected');
+    Logger.info('stop sessionValidators');
   },
 
-  getStakingInfo: async function (api, nextElected): Promise<Array<IStakingInfo>> {
+  getStakingInfo: async function (api, sessionValidators): Promise<Array<IStakingInfo>> {
     await wait(5000);
-    const stakingInfo = await Promise.all(nextElected.map((valId) => api.derive.staking.account(valId)));
+    const stakingInfo = await Promise.all(sessionValidators.map((valId) => api.derive.staking.account(valId)));
     return stakingInfo.map((x) => {
       const stashId = x.stashId.toString();
       const accountId = x.accountId.toString();
@@ -58,10 +58,10 @@ module.exports = {
     });
   },
 
-  getEstimatedPoolReward: async function (api, nextElected, stakingInfo: Array<IStakingInfo>) {
+  getEstimatedPoolReward: async function (api, sessionValidators, stakingInfo: Array<IStakingInfo>) {
     await wait(5000);
     const Logger = Container.get('logger');
-    const nextElectedArr = nextElected.map((x) => x.toString());
+    const sessionValidatorsArr = sessionValidators.map((x) => x.toString());
     const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
@@ -70,7 +70,7 @@ module.exports = {
     const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
     const historyData = await ValidatorHistory.aggregate([
       {
-        $match: { stashId: { $in: nextElectedArr } },
+        $match: { stashId: { $in: sessionValidatorsArr } },
       },
       {
         $group: {

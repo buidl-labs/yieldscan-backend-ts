@@ -38,6 +38,11 @@ export default async ({ expressApp }) => {
       // Notice the require syntax and the '.default'
       model: require('../models/accountIdentity').default,
     },
+    {
+      name: 'SessionValidators',
+      // Notice the require syntax and the '.default'
+      model: require('../models/sessionValidators').default,
+    },
   ];
 
   await dependencyInjectorLoader({
