@@ -1,20 +1,21 @@
-import ValidatorHistory from '../../models/validatorHistory';
-// import NextElected from '../../models/NextElected';
-import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { wait, scaleData, normalizeData } from '../utils';
 import mongoose from 'mongoose';
 import { Container } from 'typedi';
 
+import ValidatorHistory from '../../models/validatorHistory';
+import { IStakingInfo } from '../../interfaces/IStakingInfo';
+import { wait, scaleData, normalizeData } from '../utils';
+import TotalRewardHistory from '../../models/totalRewardHistory';
+
 module.exports = {
   start: async function (api) {
-    // console.log('start nextElected');
+    const Logger = Container.get('logger');
+    Logger.info('start nextElected');
     const nextElected = await api.derive.staking.nextElected();
-    // console.log(JSON.stringify(nextElected));
+    Logger.debug(nextElected);
     const stakingInfo = await module.exports.getStakingInfo(api, nextElected);
-    // console.log(stakingInfo);
+    Logger.debug(stakingInfo);
     const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, nextElected, stakingInfo);
     await module.exports.getRiskScore(stakingInfoWithRewards);
-    // console.log(stakingInfoWithRewards);
 
     // save next elected information
     const NextElected = Container.get('NextElected') as mongoose.Model<IStakingInfo & mongoose.Document>;
@@ -22,9 +23,9 @@ module.exports = {
       await NextElected.deleteMany({});
       await NextElected.insertMany(stakingInfoWithRewards);
     } catch (error) {
-      console.log(error);
+      Logger.error(error);
     }
-    console.log('stop nextElected');
+    Logger.info('stop nextElected');
   },
 
   getStakingInfo: async function (api, nextElected): Promise<Array<IStakingInfo>> {
@@ -59,21 +60,10 @@ module.exports = {
 
   getEstimatedPoolReward: async function (api, nextElected, stakingInfo: Array<IStakingInfo>) {
     await wait(5000);
-    // const count = 15;
-    // console.log(count);
+    const Logger = Container.get('logger');
     const nextElectedArr = nextElected.map((x) => x.toString());
-    // console.log(nextElectedArr);
-    const lastIndexDB = await ValidatorHistory.find({}).sort({ eraIndex: -1 }).limit(1);
-    const lastIndexDBTotalReward = lastIndexDB[0].totalReward;
-    // keep last EraIndex from Db in memory
-    // console.log(lastIndexDBTotalReward);
-    // const arr = [...Array(count).keys()].map((i) => lastEraIndexDB - i);
-    // const historyData = await ValidatorHistory.find({ eraIndex: { $in: arr } })
-    //   .select(['eraPoints', 'totalEraPoints', 'stashId', 'totalReward', 'slashCount'])
-    //   .lean();
-    // console.log(historyData);
-    // await ValidatorHistory.deleteMany({ eraIndex: 930 });
-
+    const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(1);
+    const lastIndexDBTotalReward = lastIndexDB[0].eraTotalReward;
     const historyData = await ValidatorHistory.aggregate([
       {
         $match: { stashId: { $in: nextElectedArr } },
@@ -101,7 +91,6 @@ module.exports = {
       x.estimatedPoolReward = x.avgEraPointsFraction * lastIndexDBTotalReward;
     });
 
-    // console.log(historyData);
     // map these values to
     stakingInfo.map((x) => {
       const requiredData = historyData.filter((y) => y._id == x.stashId);
@@ -127,12 +116,13 @@ module.exports = {
           (poolReward - (commission * poolReward)) * 100 / (100 + totalStake);
       }
     });
-    // console.log(stakingInfo);
+    Logger.debug(stakingInfo);
     return stakingInfo;
   },
 
   getRiskScore: async function (stakingInfo: Array<IStakingInfo>) {
-    console.log('waiting 5 secs');
+    const Logger = Container.get('logger');
+    Logger.info('waiting 5 secs');
     await wait(5000);
     const maxNomCount = Math.max(...stakingInfo.map((x) => x.nominators.length));
     const minNomCount = Math.min(...stakingInfo.map((x) => x.nominators.length));
@@ -140,12 +130,9 @@ module.exports = {
     const minOwnStake = Math.min(...stakingInfo.map((x) => x.ownStake));
     const maxOthersStake = Math.max(...stakingInfo.map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)));
     const minOthersStake = Math.min(...stakingInfo.map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)));
-    // console.log(maxNomCount, minNomCount, maxOwnStake, minOwnStake);
     const riskScoreArr = [];
     stakingInfo.forEach((element) => {
       const otherStake = element.nominators.reduce((a, b) => a + b.stake, 0);
-      // console.log(otherStake)
-      // console.log(element.activeEras)
       const slashScore = element.totalSlashCount;
       const activevalidatingScore = 1 / (element.activeErasCount + 1);
       const backersScore = 1 / scaleData(element.nominators.length, maxNomCount, minNomCount);
@@ -158,9 +145,7 @@ module.exports = {
         riskScore: riskScore,
         stashId: element.stashId,
       });
-      // console.log('stashId: ' + element.stashId.toString() + ' slashScore: ' + slashScore.toFixed(3) + ' backersScore: ' + backersScore.toFixed(3) + ' ownStake: ' + validatorOwnRisk +' otherStake: '+  (1 / scaleData(otherStake, maxOthS, minOthS)).toFixed(3) + ' riskScore: ' + riskScore.toFixed(3) )
     });
-    // console.log(riskScoreArr);
     const maxRS = Math.max(...riskScoreArr.map((x) => x.riskScore));
     const minRS = Math.min(...riskScoreArr.map((x) => x.riskScore));
     stakingInfo.map((x) => {

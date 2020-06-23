@@ -20,17 +20,22 @@ module.exports = {
           };
         }
       });
+
+      // Todo: wrap in try catch
       await TotalRewardHistory.insertMany(rewardsWithEraIndex);
     }
-    console.log('stop historyData');
+    Logger.info('stop historyData');
   },
+
   getRewards: async function (api, eraIndex) {
+    const Logger = Container.get('logger');
+    Logger.info('get Rewards');
     try {
       const rewards = await Promise.all(eraIndex.map((i) => api.query.staking.erasValidatorReward(i)));
       return rewards;
     } catch (error) {
-      console.log('caught error while fetching pointsHistoryWithTotalReward. Retrying in 15s');
-      await wait(15000);
+      Logger.error('caught error while fetching pointsHistoryWithTotalReward. Retrying in 15s');
+      await wait(5000);
       await module.exports.getRewards(api, eraIndex);
     }
   },
