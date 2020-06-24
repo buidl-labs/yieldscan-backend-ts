@@ -43,6 +43,16 @@ export default async ({ expressApp }) => {
       // Notice the require syntax and the '.default'
       model: require('../models/sessionValidators').default,
     },
+    {
+      name: 'NominatorHistory',
+      // Notice the require syntax and the '.default'
+      model: require('../models/nominatorHistory').default,
+    },
+    {
+      name: 'ActiveNominators',
+      // Notice the require syntax and the '.default'
+      model: require('../models/activeNominators').default,
+    },
   ];
 
   await dependencyInjectorLoader({

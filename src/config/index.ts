@@ -44,6 +44,10 @@ export default {
       module: require('../services/crawlers/historyData'),
     },
     {
+      enabled: process.env.CRAWLER_NOMINATOR_HISTORY_ENABLE,
+      module: require('../services/crawlers/nominatorsHistoryData'),
+    },
+    {
       enabled: process.env.CRAWLER_TOTAL_REWARD_HISTORY,
       module: require('../services/crawlers/historyTotalRewards'),
     },
@@ -58,6 +62,10 @@ export default {
     {
       enabled: process.env.CRAWLER_SESSION_VALIDATORS_ENABLED,
       module: require('../services/crawlers/sessionValidators'),
+    },
+    {
+      enabled: process.env.CRAWLER_ACTIVE_NOMINATORS_ENABLED,
+      module: require('../services/crawlers/activeNominators'),
     },
   ],
 };

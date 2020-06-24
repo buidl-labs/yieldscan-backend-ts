@@ -130,6 +130,7 @@ module.exports = {
           eraIndex: pointsHistory[i].eraIndex,
           eraPoints: pointsHistory[i].erasRewardPoints.individual[y],
           totalEraPoints: pointsHistory[i].erasRewardPoints.total,
+          totalStake: parseInt(valExposure[pointsHistory[i].eraIndex][index].total),
           nominatorsInfo: nominatorsInfo,
           slashCount: slashInfo[0] !== undefined ? parseInt(slashInfo[0].total) : 0,
         });

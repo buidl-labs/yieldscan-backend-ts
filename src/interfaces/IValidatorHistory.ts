@@ -5,6 +5,7 @@ export interface IValidatorHistory {
   eraPoints: number;
   slashCount: number;
   totalEraPoints: number;
+  totalStake: number;
   nominatorsInfo: [
     {
       nomId: string;

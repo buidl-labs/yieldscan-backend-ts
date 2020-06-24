@@ -8,6 +8,7 @@ const ValidatorHistory = new mongoose.Schema(
     eraPoints: Number,
     totalEraPoints: Number,
     slashCount: Number,
+    totalStake: Number,
     nominatorsInfo: [
       {
         nomId: String,
