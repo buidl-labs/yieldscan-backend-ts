@@ -11,4 +11,4 @@ jobs:
         with:
           mode: minimum
           count: 1
-          labels: "+P1, +P2, +P3"
+          labels: +P1, +P2, +P3
