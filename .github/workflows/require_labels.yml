@@ -1,0 +1,17 @@
+name: Require Labels
+on:
+  issues:
+    types: [opened]
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mheap/github-action-required-labels@v1
+        with:
+          mode: minimum
+          count: 1
+          labels: "+P1, +P2, +P3"
+        with:
+          mode: minimum
+          count: 1
+          labels: "-size-xs, -size-s, -size-m, -size-l, -size-xl"
