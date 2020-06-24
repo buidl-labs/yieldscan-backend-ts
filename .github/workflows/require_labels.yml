@@ -4,6 +4,7 @@ on:
     types: [opened]
 jobs:
   label:
+    name: Check issue labels
     runs-on: ubuntu-latest
     steps:
       - uses: mheap/github-action-required-labels@v1
@@ -11,6 +12,7 @@ jobs:
           mode: minimum
           count: 1
           labels: "+P1, +P2, +P3"
+      - uses: mheap/github-action-required-labels@v1
         with:
           mode: minimum
           count: 1
