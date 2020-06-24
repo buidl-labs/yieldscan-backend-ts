@@ -7,5 +7,5 @@ export default (app: Router) => {
   app.use('/actors', route);
 
   route.get('/validators', middlewares.validatorsDashboard);
-//   route.get('/risk-set', middlewares.risk_set);
+  route.get('/nominators', middlewares.nominatorsDashboard);
 };

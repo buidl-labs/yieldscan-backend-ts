@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 
 import { wait } from '../utils';
 import { INominatorHistory } from '../../interfaces/INominatorHistory';
+import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 
 module.exports = {
   start: async function (api) {

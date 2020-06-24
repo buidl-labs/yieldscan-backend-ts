@@ -43,7 +43,7 @@ module.exports = {
                 stashId: x.stashId,
                 commission: x.commission,
                 totalStake: x.totalStake,
-                nomStake: y.nomStake,
+                nomStake: y.stake,
               },
             ],
           });
@@ -64,7 +64,6 @@ module.exports = {
       const individualHistory = previous4ErasData.filter((y) => y.nomId == x.nomId);
       const earnings = individualHistory.map((y) => {
         const totalReward = lastIndexDB.filter((z) => z.eraIndex == y.eraIndex);
-        // console.log(totalReward[0].eraTotalReward);
         const result = y.validatorsInfo.reduce((a, b) => {
           const commission = b.commission / Math.pow(10, 9);
           const totalStake = b.totalStake / Math.pow(10, 12);
