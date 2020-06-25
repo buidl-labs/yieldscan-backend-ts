@@ -8,26 +8,19 @@ module.exports = {
   start: async function (api) {
     const Logger = Container.get('logger');
     Logger.info('start historyTotalRewads');
-    const eraIndex = await module.exports.getEraIndexes(api);
+    const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
+      ITotalRewardHistory & mongoose.Document
+    >;
+    const eraIndex = await module.exports.getEraIndexes(api, TotalRewardHistory);
     // Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
       const rewards = await module.exports.getRewards(api, eraIndex);
-      const rewardsWithEraIndex: Array<ITotalRewardHistory> = eraIndex.map((x, index) => {
-        const totalReward = rewards[index];
-        if (totalReward !== null) {
-          return {
-            eraTotalReward: totalReward,
-            eraIndex: x,
-          };
+      if (rewards.length !== 0) {
+        try {
+          await TotalRewardHistory.insertMany(rewards);
+        } catch (error) {
+          Logger.error('Caught error while updating total reward ', error);
         }
-      });
-
-      // Todo: wrap in try catch
-      if (rewardsWithEraIndex.length !== 0) {
-        const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
-          ITotalRewardHistory & mongoose.Document
-        >;
-        await TotalRewardHistory.insertMany(rewardsWithEraIndex);
       }
     }
     Logger.info('stop historyTotalRewards');
@@ -37,20 +30,26 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('get Rewards');
     try {
-      const rewards = await Promise.all(eraIndex.map((i) => api.query.staking.erasValidatorReward(i)));
-      return rewards;
+      const rewards = await Promise.all(
+        eraIndex.map(async (i) => {
+          const reward = await api.query.staking.erasValidatorReward(i);
+          if (reward !== null) {
+            return { eraIndex: i, eraTotalReward: parseInt(reward) };
+          } else {
+            return null;
+          }
+        }),
+      );
+      const result = rewards.filter((i) => i !== null);
+      return result;
     } catch (error) {
-      Logger.error('caught error while fetching pointsHistoryWithTotalReward. Retrying in 15s');
+      Logger.error('caught error while fetching historyTotalReward. Retrying in 5s', error);
       await wait(5000);
       await module.exports.getRewards(api, eraIndex);
     }
   },
 
-  getEraIndexes: async function (api) {
-    const Logger = Container.get('logger');
-    const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
-      ITotalRewardHistory & mongoose.Document
-    >;
+  getEraIndexes: async function (api, TotalRewardHistory) {
     // get the latest eraIndex from the DB
     const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     // Logger.debug(lastIndexDB);
