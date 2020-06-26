@@ -23,9 +23,9 @@ module.exports = {
   getNominatorsInfo: async function (sessionValidators) {
     const result = [];
     sessionValidators.map((x) => {
+      const estimatedPoolReward = x.estimatedPoolReward;
+      const riskScore = x.riskScore;
       x.nominators.forEach((y) => {
-        const estimatedPoolReward = x.estimatedPoolReward;
-        const riskScore = x.riskScore;
         if (result.some((element) => element.nomId == y.nomId)) {
           result.map((z) => {
             if (z.nomId == y.nomId) {
@@ -34,9 +34,11 @@ module.exports = {
                 commission: x.commission,
                 totalStake: x.totalStake,
                 nomStake: y.stake,
-                riskscore: riskScore,
+                riskScore: riskScore,
                 claimedRewards: x.claimedRewards,
-                estimatedReward: (estimatedPoolReward - (x.commission / Math.pow(10, 9) * estimatedPoolReward)) * y.stake / x.totalStake,
+                estimatedReward:
+                  ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
+                  x.totalStake,
               });
             }
           });
@@ -49,9 +51,11 @@ module.exports = {
                 commission: x.commission,
                 totalStake: x.totalStake,
                 nomStake: y.stake,
-                riskscore: riskScore,
+                riskScore: riskScore,
                 claimedRewards: x.claimedRewards,
-                estimatedReward: (estimatedPoolReward - (x.commission / Math.pow(10, 9) * estimatedPoolReward)) * y.stake / x.totalStake,
+                estimatedReward:
+                  ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
+                  x.totalStake,
               },
             ],
           });
