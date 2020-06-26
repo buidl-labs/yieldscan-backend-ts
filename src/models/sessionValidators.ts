@@ -19,6 +19,7 @@ const SessionValidators = new mongoose.Schema(
         stake: Number,
       },
     ],
+    claimedRewards: [Number],
   },
   { timestamps: true },
 );

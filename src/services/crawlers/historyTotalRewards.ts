@@ -33,7 +33,7 @@ module.exports = {
       const rewards = await Promise.all(
         eraIndex.map(async (i) => {
           const reward = await api.query.staking.erasValidatorReward(i);
-          if (reward !== null) {
+          if (reward.toJSON() !== null) {
             return { eraIndex: i, eraTotalReward: parseInt(reward) };
           } else {
             return null;

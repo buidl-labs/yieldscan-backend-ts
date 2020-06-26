@@ -38,6 +38,7 @@ module.exports = {
       const commission = parseInt(x.validatorPrefs.commission);
       const totalStake = parseInt(x.exposure.total);
       const ownStake = parseInt(x.exposure.own);
+      const claimedRewards = x.stakingLedger.claimedRewards.map((era) => parseInt(era));
       const nominators = x.exposure.others.map((y) => {
         const nomId = y.who.toString();
         const stake = parseInt(y.value);
@@ -54,6 +55,7 @@ module.exports = {
         totalStake: totalStake,
         ownStake: ownStake,
         nominators: nominators,
+        claimedRewards: claimedRewards,
       };
     });
   },

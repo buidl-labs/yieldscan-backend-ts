@@ -16,4 +16,5 @@ export interface IStakingInfo {
       stake: number;
     },
   ];
+  claimedRewards: [number];
 }

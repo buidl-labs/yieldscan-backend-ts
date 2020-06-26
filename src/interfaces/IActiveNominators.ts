@@ -7,6 +7,9 @@ export interface IActiveNominators {
       nomStake: number;
       commission: number;
       totalStake: number;
+      riskScore: number;
+      claimedRewards: [number];
+      estimatedReward: number;
     },
   ];
 }
