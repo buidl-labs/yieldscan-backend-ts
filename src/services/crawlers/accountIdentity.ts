@@ -1,8 +1,7 @@
 import { Container } from 'typedi';
+import mongoose from 'mongoose';
 
 import { wait } from '../utils';
-import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
-import mongoose from 'mongoose';
 import { IAccountIdentity } from '../../interfaces/IAccountIdentity';
 
 module.exports = {
@@ -12,32 +11,34 @@ module.exports = {
 
     // get all stashes
     const allStashes = await api.derive.staking.stashes();
+
     // get all stashes account info
 
-    // Todo complete accountIdentity module
-
-    const accountsInfo = await Promise.all(allStashes.map((x) => api.derive.accounts.info(x)));
-    Logger.debug(accountsInfo);
+    const accountsInfo = await Promise.all(
+      allStashes.map(async (x) => {
+        const info = await api.derive.accounts.info(x.toString());
+        const accountId = info.accountId.toString();
+        const display = info.identity.display !== undefined ? info.identity.display.toString() : null;
+        const email = info.identity.email !== undefined ? info.identity.display.toString() : null;
+        const legal = info.identity.legal !== undefined ? info.identity.display.toString() : null;
+        const riot = info.identity.riot !== undefined ? info.identity.display.toString() : null;
+        return {
+          stashId: x.toString(),
+          accountId: accountId,
+          display: display,
+          email: email,
+          legal: legal,
+          riot: riot,
+        };
+      }),
+    );
     Logger.info('Waiting 5s');
     await wait(5000);
-    // Logger.debug(accountsInfo);
-
-    accountsInfo.map((x, index) => {
-      return {
-        stashId: allStashes[index].toString(),
-        accountId: x.accountId.toString(),
-        display: x.identity.display.toString(),
-        email: x.identity.email.toString(),
-        legal: x.identity.legal.toString(),
-        riot: x.identity.riot.toString(),
-      };
-    });
-
-    Logger.debug(accountsInfo);
 
     // update info
 
     const AccountIdentity = Container.get('AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
+
     // todo replace delete insert logic with a more suitable process like update/updateMany
     await AccountIdentity.deleteMany({});
     await AccountIdentity.insertMany(accountsInfo);

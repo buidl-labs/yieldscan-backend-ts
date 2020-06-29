@@ -7,19 +7,33 @@ const risk_set = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
     const NextElected = Container.get('NextElected') as mongoose.Model<IStakingInfo & mongoose.Document>;
-    const sortedData = await NextElected.find({}).sort({
-      rewardsPer100KSM: -1,
-    });
-    // console.log(sortedData);
+
+    const sortedData = await NextElected.aggregate([
+      {
+        $lookup: {
+          from: 'accountidentities',
+          localField: 'stashId',
+          foreignField: 'stashId',
+          as: 'info',
+        },
+      },
+      {
+        $sort: {
+          rewardsPer100KSM: -1,
+        },
+      },
+    ]);
+
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.numOfNominators = x.nominators.length;
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
+      x.name = x.info[0].display;
     });
     // console.log('sortedData', sortedData);
     const arr1 = sortedData.map(
-      ({ stashId, commission, totalStake, estimatedPoolReward, numOfNominators, rewardsPer100KSM, riskScore }) => ({
+      ({
         stashId,
         commission,
         totalStake,
@@ -27,6 +41,16 @@ const risk_set = async (req, res, next) => {
         numOfNominators,
         rewardsPer100KSM,
         riskScore,
+        name,
+      }) => ({
+        stashId,
+        commission,
+        totalStake,
+        estimatedPoolReward,
+        numOfNominators,
+        rewardsPer100KSM,
+        riskScore,
+        name,
       }),
     );
     // console.log('arr1', arr1);
