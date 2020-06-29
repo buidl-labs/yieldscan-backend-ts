@@ -30,7 +30,7 @@ const validatorsDashboard = async (req, res, next) => {
       x.othersStake = x.nominators.reduce((a, b) => a + b.stake, 0) / Math.pow(10, 12);
       x.numOfNominators = x.nominators.length;
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
-      x.name = x.info[0].display;
+      x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
     // console.log('sortedData', sortedData);
     const result = sortedData.map(

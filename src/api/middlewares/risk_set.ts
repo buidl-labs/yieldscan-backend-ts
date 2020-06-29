@@ -30,9 +30,9 @@ const risk_set = async (req, res, next) => {
       x.numOfNominators = x.nominators.length;
       x.ownStake = x.ownStake / Math.pow(10, 12);
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
-      x.name = x.info[0].display;
+      x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
-    // console.log('sortedData', sortedData);
+
     const arr1 = sortedData.map(
       ({
         stashId,
