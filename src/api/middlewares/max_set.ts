@@ -2,7 +2,7 @@ import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
 // import { sortLowRisk, sortMedRisk } from '../../services/utils'
-import { NoDataFound } from '../../services/utils';
+import { HttpError } from '../../services/utils';
 
 const max_set = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -11,11 +11,10 @@ const max_set = async (req, res, next) => {
     const sortedData = await NextElected.find({}).sort({
       rewardsPer100KSM: -1,
     });
-    // console.log(sortedData);
-    // const lowRiskSortArr = sortLowRisk(sortedData);
-    // const medRiskSortArr = sortMedRisk(sortedData);
+
     if (sortedData.length == 0) {
-      throw new NoDataFound('No data found', 404);
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'No data found');
     }
 
     sortedData.map((x) => {
@@ -23,10 +22,6 @@ const max_set = async (req, res, next) => {
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
     });
-    if (!(sortedData.length > 0)) {
-      res.json([]);
-      return;
-    }
     // console.log(sortedData);
     const result = sortedData.slice(0, 16).map(({ stashId, commission, totalStake, estimatedPoolReward }) => ({
       stashId,
@@ -35,7 +30,7 @@ const max_set = async (req, res, next) => {
       estimatedPoolReward,
     }));
     // console.log(result)
-    res.json(result).status(200);
+    return res.status(200).json(result);
   } catch (e) {
     Logger.error('🔥 Error fetching max-set: %o', e);
     return next(e);

@@ -1,6 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
+import { HttpError } from '../../services/utils';
 
 const validatorsDashboard = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -22,7 +23,12 @@ const validatorsDashboard = async (req, res, next) => {
         },
       },
     ]);
-    // console.log(sortedData);
+
+    if (sortedData.length == 0) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'No data found');
+    }
+
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
@@ -32,7 +38,7 @@ const validatorsDashboard = async (req, res, next) => {
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
-    // console.log('sortedData', sortedData);
+
     const result = sortedData.map(
       ({
         stashId,
@@ -59,7 +65,7 @@ const validatorsDashboard = async (req, res, next) => {
 
     res.json(result).status(200);
   } catch (e) {
-    Logger.error('🔥 Error attaching user to req: %o', e);
+    Logger.error('🔥 Error fetching validators data: %o', e);
     return next(e);
   }
 };

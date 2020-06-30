@@ -1,6 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
+import { HttpError } from '../../services/utils';
 
 const userData = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -23,6 +24,11 @@ const userData = async (req, res, next) => {
         },
       },
     ]);
+
+    if (data.length == 0) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'No user data found');
+    }
 
     const totalRewards = data[0].validatorsInfo.reduce((a, b) => a + b.estimatedReward, 0) / Math.pow(10, 12);
     const totalAmountStaked = data[0].validatorsInfo.reduce((a, b) => a + b.nomStake, 0) / Math.pow(10, 12);
@@ -49,9 +55,9 @@ const userData = async (req, res, next) => {
       validatorsInfo: validatorsInfo,
     };
 
-    res.json(result).status(200);
+    return res.json(result).status(200);
   } catch (e) {
-    Logger.error('🔥 Error attaching user to req: %o', e);
+    Logger.error('🔥 Error generating user data: %o', e);
     return next(e);
   }
 };

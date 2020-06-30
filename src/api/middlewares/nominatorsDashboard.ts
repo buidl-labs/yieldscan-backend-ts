@@ -1,6 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
+import { HttpError } from '../../services/utils';
 
 const nominatorsDashboard = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -9,6 +10,11 @@ const nominatorsDashboard = async (req, res, next) => {
     const sortedData = await ActiveNominators.find({}).sort({
       dailyEarnings: -1,
     });
+
+    if (sortedData.length == 0) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'No data found');
+    }
 
     const nomCount = sortedData.length;
     const totalRewards = sortedData.reduce((a, b) => a + b.dailyEarnings, 0);
@@ -37,9 +43,9 @@ const nominatorsDashboard = async (req, res, next) => {
       nominatorsInfo: nominatorsInfo,
     };
 
-    res.json(result).status(200);
+    return res.status(200).json(result);
   } catch (e) {
-    Logger.error('🔥 Error attaching user to req: %o', e);
+    Logger.error('🔥 Error fetching nominators data: %o', e);
     return next(e);
   }
 };

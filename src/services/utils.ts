@@ -1,3 +1,5 @@
+import { CustomError } from 'ts-custom-error';
+
 import { IStakingInfo } from '../interfaces/IStakingInfo';
 
 export async function wait(ms: number): Promise<void> {
@@ -65,6 +67,12 @@ export function sortMedRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
 //     });
 //   });
 // }
+
+export class HttpError extends CustomError {
+  public constructor(public code: number, message?: string) {
+    super(message);
+  }
+}
 
 export class NoDataFound extends Error {
   public name: string;

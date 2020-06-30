@@ -1,7 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { sortLowRisk, sortMedRisk } from '../../services/utils';
+import { sortLowRisk, sortMedRisk, HttpError } from '../../services/utils';
 
 const risk_set = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -23,6 +23,11 @@ const risk_set = async (req, res, next) => {
         },
       },
     ]);
+
+    if (sortedData.length == 0) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'No data found');
+    }
 
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
@@ -56,18 +61,9 @@ const risk_set = async (req, res, next) => {
         ownStake,
       }),
     );
-    // console.log('arr1', arr1);
+
     const lowRiskSortArr = sortLowRisk(arr1);
     const medRiskSortArr = sortMedRisk(arr1);
-    if (!(arr1.length > 0)) {
-      res.json([]);
-      return;
-    }
-
-    // console.log('lowRiskSortArr', lowRiskSortArr);
-    // console.log('medRiskSortArr', medRiskSortArr);
-
-    // console.log(sortedData)
 
     const highriskset = arr1.slice(0, 16);
     const result = {
@@ -76,9 +72,9 @@ const risk_set = async (req, res, next) => {
       highriskset: highriskset,
       totalset: arr1,
     };
-    res.json(result).status(200);
+    return res.json(result).status(200);
   } catch (e) {
-    Logger.error('🔥 Error attaching user to req: %o', e);
+    Logger.error('🔥 Error generating risk-sets: %o', e);
     return next(e);
   }
 };
