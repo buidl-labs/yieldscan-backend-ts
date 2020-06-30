@@ -7,15 +7,27 @@ const userData = async (req, res, next) => {
   try {
     const id = req.params.id;
     const ActiveNominators = Container.get('ActiveNominators') as mongoose.Model<IActiveNominators & mongoose.Document>;
-    const data: Array<IActiveNominators> = await ActiveNominators.find({ nomId: id }).lean();
 
-    if (data.length == 0) {
-      res.json({ message: 'No data found!' }).status(302);
-    }
+    const data = await ActiveNominators.aggregate([
+      {
+        $match: {
+          nomId: id,
+        },
+      },
+      {
+        $lookup: {
+          from: 'accountidentities',
+          localField: 'validatorsInfo.stashId',
+          foreignField: 'stashId',
+          as: 'info',
+        },
+      },
+    ]);
 
     const totalRewards = data[0].validatorsInfo.reduce((a, b) => a + b.estimatedReward, 0) / Math.pow(10, 12);
     const totalAmountStaked = data[0].validatorsInfo.reduce((a, b) => a + b.nomStake, 0) / Math.pow(10, 12);
     const validatorsInfo = data[0].validatorsInfo.map((x) => {
+      const name = data[0].info.filter((valId) => valId.stashId == x.stashId);
       return {
         stashId: x.stashId,
         riskScore: x.riskScore,
@@ -23,6 +35,7 @@ const userData = async (req, res, next) => {
         commission: x.commission / Math.pow(10, 7),
         nomStake: x.nomStake / Math.pow(10, 12),
         claimedRewardEras: x.claimedRewards,
+        name: name[0] !== undefined ? name[0].display : null,
       };
     });
 
