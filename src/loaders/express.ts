@@ -42,22 +42,20 @@ export default ({ app }: { app: express.Application }) => {
   });
 
   /// global error handlers
-  /**
-   * Handle custom errors here if necessary
-   * Example below:
-   *    app.use((err, req, res, next) => {
-   *      if (err.name === 'UnauthorizedError') {
-   *        return res.status(err.status).send({ message: err.message }).end();
-   *      }
-   *      return next(err);
-   *    });
-   */
+
+  app.use((err, req, res, next) => {
+    if (err.name === 'NoDataFound') {
+      return res.status(err.status).send({ status: err.status, message: err.message }).end();
+    }
+    return next(err);
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err, req, res, next) => {
     res.status(err.status || 500);
     res.json({
-      errors: {
+      error: {
+        status: true,
         message: err.message,
       },
     });

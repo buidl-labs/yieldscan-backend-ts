@@ -65,3 +65,16 @@ export function sortMedRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
 //     });
 //   });
 // }
+
+export class NoDataFound extends Error {
+  public name: string;
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = (this.constructor as any).name;
+    this.message = message;
+    this.status = status;
+    Error.captureStackTrace(this, this.constructor); // after initialize properties
+  }
+}

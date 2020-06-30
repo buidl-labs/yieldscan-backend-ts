@@ -2,6 +2,7 @@ import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
 // import { sortLowRisk, sortMedRisk } from '../../services/utils'
+import { NoDataFound } from '../../services/utils';
 
 const max_set = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -13,6 +14,10 @@ const max_set = async (req, res, next) => {
     // console.log(sortedData);
     // const lowRiskSortArr = sortLowRisk(sortedData);
     // const medRiskSortArr = sortMedRisk(sortedData);
+    if (sortedData.length == 0) {
+      throw new NoDataFound('No data found', 404);
+    }
+
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 9);
       x.totalStake = x.totalStake / Math.pow(10, 12);
@@ -32,7 +37,7 @@ const max_set = async (req, res, next) => {
     // console.log(result)
     res.json(result).status(200);
   } catch (e) {
-    Logger.error('🔥 Error attaching user to req: %o', e);
+    Logger.error('🔥 Error fetching max-set: %o', e);
     return next(e);
   }
 };
