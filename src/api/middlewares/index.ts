@@ -3,6 +3,7 @@ import risk_set from './risk_set';
 import validatorsDashboard from './validatorsDashboard';
 import nominatorsDashboard from './nominatorsDashboard';
 import userData from './userData';
+import validatorProfile from './validatorProfile'
 
 export default {
   max_set,
@@ -10,4 +11,5 @@ export default {
   validatorsDashboard,
   nominatorsDashboard,
   userData,
+  validatorProfile,
 };

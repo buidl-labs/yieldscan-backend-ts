@@ -2,6 +2,7 @@ import { Router } from 'express';
 import reward from './routes/reward';
 import actors from './routes/actors';
 import user from './routes/user';
+import validator from './routes/validator';
 
 // guaranteed to get dependencies
 export default () => {
@@ -13,6 +14,7 @@ export default () => {
   reward(app);
   actors(app);
   user(app);
+  validator(app);
 
   return app;
 };
