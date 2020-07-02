@@ -37,7 +37,8 @@ const userData = async (req, res, next) => {
       return {
         stashId: x.stashId,
         riskScore: x.riskScore,
-        estimatedReward: x.estimatedReward / Math.pow(10, 12),
+        totalStake: x.totalStake / Math.pow(10, 12),
+        estimatedPoolReward: x.estimatedReward / Math.pow(10, 12),
         commission: x.commission / Math.pow(10, 7),
         nomStake: x.nomStake / Math.pow(10, 12),
         claimedRewardEras: x.claimedRewards,

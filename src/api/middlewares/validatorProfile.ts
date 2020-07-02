@@ -1,6 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
+import { IAccountIdentity } from '../../interfaces/IAccountIdentity';
 import { HttpError } from '../../services/utils';
 
 const validatorProfile = async (req, res, next) => {
@@ -73,11 +74,28 @@ const validatorProfile = async (req, res, next) => {
       }),
     );
 
-    const socialInfo = sortedData[0].info[0] !== undefined ? sortedData[0].info[0] : {};
-
-    res.json({ keyStats: keyStats[0], stakingInfo: stakingInfo[0], socialInfo: socialInfo }).status(200);
+    const socialInfo =
+      sortedData[0].info[0] !== undefined
+        ? sortedData[0].info.map((x) => {
+            return {
+              name: x.display,
+              email: x.email,
+              legal: x.legal,
+              riot: x.riot,
+              twitter: x.twitter,
+              web: x.web,
+            };
+          })
+        : [{}];
+    // const AccountIdentity = Container.get('AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
+    // const linkedValidators = await AccountIdentity.aggregate([
+    //   {
+    //     $match: { $or: [{ email: socialInfo[0].email }, { web: socialInfo[0].web }] },
+    //   },
+    // ]);
+    res.json({ keyStats: keyStats[0], stakingInfo: stakingInfo[0], socialInfo: socialInfo[0] }).status(200);
   } catch (e) {
-    Logger.error('🔥 Error fetching validators data: %o', e);
+    Logger.error('🔥 Error fetching validator data: %o', e);
     return next(e);
   }
 };
