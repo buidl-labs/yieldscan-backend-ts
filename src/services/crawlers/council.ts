@@ -12,6 +12,8 @@ module.exports = {
 
     const prime = await api.query.council.prime();
 
+    const balances = await Promise.all(members.members.map((x) => api.derive.balances.all(x[0].toString())));
+
     const backers = await api.derive.council.votes();
 
     const membersWithBackers: ICouncil = members.members.map((x) => {
@@ -25,11 +27,13 @@ module.exports = {
       const member = x[0].toString();
       const isPrime = member == prime.toString();
       const stake = parseInt(x[1]);
+      const totalBalance = balances.filter((y) => y.accountId.toString() == member);
       return {
         member: member,
         stake: stake,
         isPrime: isPrime,
         backersInfo: backersInfo,
+        totalBalance: parseInt(totalBalance[0].votingBalance),
       };
     });
 

@@ -5,6 +5,7 @@ const Council = new mongoose.Schema(
     member: String,
     stake: Number,
     isPrime: Boolean,
+    totalBalance: Number,
     backersInfo: [
       {
         backer: String,
