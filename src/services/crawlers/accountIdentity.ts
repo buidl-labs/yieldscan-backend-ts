@@ -19,9 +19,11 @@ module.exports = {
         const info = await api.derive.accounts.info(x.toString());
         const accountId = info.accountId.toString();
         const display = info.identity.display !== undefined ? info.identity.display.toString() : null;
-        const email = info.identity.email !== undefined ? info.identity.display.toString() : null;
-        const legal = info.identity.legal !== undefined ? info.identity.display.toString() : null;
-        const riot = info.identity.riot !== undefined ? info.identity.display.toString() : null;
+        const email = info.identity.email !== undefined ? info.identity.email.toString() : null;
+        const legal = info.identity.legal !== undefined ? info.identity.legal.toString() : null;
+        const riot = info.identity.riot !== undefined ? info.identity.riot.toString() : null;
+        const web = info.identity.web !== undefined ? info.identity.web.toString() : null;
+        const twitter = info.identity.twitter !== undefined ? info.identity.twitter.toString() : null;
         return {
           stashId: x.toString(),
           accountId: accountId,
@@ -29,6 +31,8 @@ module.exports = {
           email: email,
           legal: legal,
           riot: riot,
+          twitter: twitter,
+          web: web,
         };
       }),
     );

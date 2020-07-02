@@ -6,4 +6,5 @@ export interface IAccountIdentity {
   legal: string;
   riot: string;
   web: string;
+  twitter: string;
 }

@@ -9,6 +9,7 @@ const AccountIdentity = new mongoose.Schema(
     legal: String,
     riot: String,
     web: String,
+    twitter: String,
   },
   { timestamps: true },
 );
