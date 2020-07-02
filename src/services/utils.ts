@@ -1,18 +1,52 @@
 import { CustomError } from 'ts-custom-error';
+import mongoose from 'mongoose';
+import { Container } from 'typedi';
 
 import { IStakingInfo } from '../interfaces/IStakingInfo';
+import { IAccountIdentity } from '../interfaces/IAccountIdentity';
 
 export async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
 }
+
+export async function getLinkedValidators(socialInfo, stashId) {
+  const arr = Object.values(socialInfo).filter((x) => x !== null);
+  const AccountIdentity = Container.get('AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
+  const linkedValidators = await AccountIdentity.aggregate([
+    {
+      $match: {
+        $or: [
+          { email: { $in: arr } },
+          { legal: { $in: arr } },
+          { riot: { $in: arr } },
+          { web: { $in: arr } },
+          { twitter: { $in: arr } },
+        ],
+      },
+    },
+  ]);
+
+  const result = linkedValidators
+    .map((x) => {
+      return {
+        stashId: x.stashId,
+        name: x.display,
+      };
+    })
+    .filter((el) => el.stashId != stashId);
+  return result;
+}
+
 export function scaleData(val: number, max: number, min: number): number {
   return ((val - min) / (max - min)) * (100 - 1) + 1;
 }
+
 export function normalizeData(val: number, max: number, min: number): number {
   return (val - min) / (max - min);
 }
+
 export function sortLowRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
   const lowestRiskset = arr.filter((x) => x.riskScore < 0.3 && x.commission !== 1);
 

@@ -1,8 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { IAccountIdentity } from '../../interfaces/IAccountIdentity';
-import { HttpError } from '../../services/utils';
+import { HttpError, getLinkedValidators } from '../../services/utils';
 
 const validatorProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -87,13 +86,17 @@ const validatorProfile = async (req, res, next) => {
             };
           })
         : [{}];
-    // const AccountIdentity = Container.get('AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
-    // const linkedValidators = await AccountIdentity.aggregate([
-    //   {
-    //     $match: { $or: [{ email: socialInfo[0].email }, { web: socialInfo[0].web }] },
-    //   },
-    // ]);
-    res.json({ keyStats: keyStats[0], stakingInfo: stakingInfo[0], socialInfo: socialInfo[0] }).status(200);
+
+    const linkedValidators = await getLinkedValidators(socialInfo[0], keyStats[0].stashId);
+
+    return res
+      .json({
+        keyStats: keyStats[0],
+        stakingInfo: stakingInfo[0],
+        socialInfo: socialInfo[0],
+        linkedValidators: linkedValidators,
+      })
+      .status(200);
   } catch (e) {
     Logger.error('🔥 Error fetching validator data: %o', e);
     return next(e);
