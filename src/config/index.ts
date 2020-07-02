@@ -67,5 +67,9 @@ export default {
       enabled: process.env.CRAWLER_ACTIVE_NOMINATORS_ENABLED,
       module: require('../services/crawlers/activeNominators'),
     },
+    {
+      enabled: process.env.CRAWLER_COUNCIL_ENABLED,
+      module: require('../services/crawlers/council'),
+    },
   ],
 };
