@@ -53,7 +53,7 @@ const councilMember = async (req, res, next) => {
       });
       return {
         name: name,
-        accountId: x.accountId,
+        accountId: x.member,
         backing: backing,
         totalBalance: totalBalance,
         backersInfo: backersInfo,
