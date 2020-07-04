@@ -1,12 +1,14 @@
 import { Router } from 'express';
 import { celebrate, Joi } from 'celebrate';
-import cors from 'cors';
+// import cors from 'cors';
 
-import config from '../../config';
+// import config from '../../config';
 import middlewares from '../middlewares';
 const route = Router();
 
-const corsOptions = { origin: config.domain };
+// const corsOptions = { origin: config.domain };
+// cors(corsOptions) // add this after '/:id/update',
+
 export default (app: Router) => {
   // Register our endpoint for this route-apis
   app.use('/validator', route);
@@ -15,7 +17,6 @@ export default (app: Router) => {
 
   route.post(
     '/:id/update',
-    cors(corsOptions),
     celebrate({
       body: Joi.object({
         stashId: Joi.string().required(),
