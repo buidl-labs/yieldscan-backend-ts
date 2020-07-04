@@ -2,6 +2,7 @@ import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { HttpError, getLinkedValidators } from '../../services/utils';
+import { removeListener } from 'process';
 
 const validatorProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -21,6 +22,14 @@ const validatorProfile = async (req, res, next) => {
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'info',
+        },
+      },
+      {
+        $lookup: {
+          from: 'yieldscanidentities',
+          localField: 'stashId',
+          foreignField: 'stashId',
+          as: 'additionalInfo',
         },
       },
     ]);
@@ -87,6 +96,22 @@ const validatorProfile = async (req, res, next) => {
           })
         : [{}];
 
+    const additionalInfo =
+      sortedData[0].additionalInfo[0] !== undefined
+        ? sortedData[0].additionalInfo.map((x) => {
+            return {
+              vision: x.vision,
+              members: x.members.map((y) => {
+                return {
+                  member: y.member,
+                  role: y.role !== undefined ? y.role : null,
+                  twitter: y.twitter !== undefined ? y.twitter : null,
+                };
+              }),
+            };
+          })
+        : [{}];
+
     const linkedValidators = await getLinkedValidators(socialInfo[0], keyStats[0].stashId);
 
     return res
@@ -94,6 +119,7 @@ const validatorProfile = async (req, res, next) => {
         keyStats: keyStats[0],
         stakingInfo: stakingInfo[0],
         socialInfo: socialInfo[0],
+        additionalInfo: additionalInfo[0],
         linkedValidators: linkedValidators,
       })
       .status(200);

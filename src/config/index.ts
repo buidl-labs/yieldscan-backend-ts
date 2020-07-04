@@ -31,6 +31,13 @@ export default {
   },
 
   /**
+   * Used by winston logger
+   */
+  domain: {
+    level: process.env.domain,
+  },
+
+  /**
    * API configs
    */
   api: {

@@ -53,6 +53,11 @@ export default async ({ expressApp }) => {
       // Notice the require syntax and the '.default'
       model: require('../models/activeNominators').default,
     },
+    {
+      name: 'YieldScanIdentity',
+      // Notice the require syntax and the '.default'
+      model: require('../models/yieldScanIdentity').default,
+    },
   ];
 
   await dependencyInjectorLoader({
