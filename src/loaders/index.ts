@@ -61,16 +61,22 @@ export default async ({ expressApp }) => {
       model: require('../models/activeNominators').default,
     },
     {
-      name: 'YieldScanIdentity',
+      name: 'ValidatorIdentity',
       // Notice the require syntax and the '.default'
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      model: require('../models/yieldScanIdentity').default,
+      model: require('../models/validatorIdentity').default,
     },
     {
       name: 'Council',
       // Notice the require syntax and the '.default'
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       model: require('../models/council').default,
+    },
+    {
+      name: 'CouncilIdentity',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/councilIdentity').default,
     },
   ];
 

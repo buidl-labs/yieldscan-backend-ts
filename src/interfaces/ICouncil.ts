@@ -1,5 +1,5 @@
 export interface ICouncil {
-  member: string;
+  accountId: string;
   stake: number;
   isPrime: boolean;
   totalBalance: number;

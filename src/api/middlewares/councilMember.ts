@@ -12,14 +12,14 @@ const councilMember = async (req, res, next) => {
     const data = await Council.aggregate([
       {
         $match: {
-          member: id,
+          accountId: id,
         },
       },
       {
         $lookup: {
           from: 'accountidentities',
-          localField: 'member',
-          foreignField: 'stashId',
+          localField: 'accountId',
+          foreignField: 'accountId',
           as: 'memberIdentity',
         },
       },
@@ -53,7 +53,7 @@ const councilMember = async (req, res, next) => {
       });
       return {
         name: name,
-        accountId: x.member,
+        accountId: x.accountId,
         backing: backing,
         totalBalance: totalBalance,
         backersInfo: backersInfo,

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { ICouncil } from '../interfaces/ICouncil';
 const Council = new mongoose.Schema(
   {
-    member: String,
+    accountId: String,
     stake: Number,
     isPrime: Boolean,
     totalBalance: Number,

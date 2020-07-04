@@ -24,12 +24,12 @@ module.exports = {
           const stake = parseInt(y[1].stake);
           return { backer: backer, stake: stake };
         });
-      const member = x[0].toString();
-      const isPrime = member == prime.toString();
+      const accountId = x[0].toString();
+      const isPrime = accountId == prime.toString();
       const stake = parseInt(x[1]);
-      const totalBalance = balances.filter((y) => y.accountId.toString() == member);
+      const totalBalance = balances.filter((y) => y.accountId.toString() == accountId);
       return {
-        member: member,
+        accountId: accountId,
         stake: stake,
         isPrime: isPrime,
         backersInfo: backersInfo,

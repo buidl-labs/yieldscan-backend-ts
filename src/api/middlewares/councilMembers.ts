@@ -12,8 +12,8 @@ const councilMembers = async (req, res, next) => {
       {
         $lookup: {
           from: 'accountidentities',
-          localField: 'member',
-          foreignField: 'stashId',
+          localField: 'accountId',
+          foreignField: 'accountId',
           as: 'memberIdentity',
         },
       },
@@ -48,7 +48,7 @@ const councilMembers = async (req, res, next) => {
       //   });
       return {
         name: name,
-        accountId: x.member,
+        accountId: x.accountId,
         backing: backing,
         totalBalance: totalBalance,
         numberOfBackers: numberOfBackers,
