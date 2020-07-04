@@ -5,6 +5,8 @@ import nominatorsDashboard from './nominatorsDashboard';
 import userData from './userData';
 import validatorProfile from './validatorProfile';
 import updateProfile from './updateProfile';
+import councilMember from './councilMember';
+import councilMembers from './councilMembers';
 
 export default {
   max_set,
@@ -14,4 +16,6 @@ export default {
   userData,
   validatorProfile,
   updateProfile,
+  councilMember,
+  councilMembers,
 };
