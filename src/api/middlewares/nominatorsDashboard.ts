@@ -40,6 +40,7 @@ const nominatorsDashboard = async (req, res, next) => {
         totalRewards: totalRewards,
         totalAmountStaked: totalAmountStaked,
       },
+      top3: nominatorsInfo.slice(0, 3),
       nominatorsInfo: nominatorsInfo,
     };
 
