@@ -31,6 +31,14 @@ const councilMember = async (req, res, next) => {
           as: 'backersIdentity',
         },
       },
+      {
+        $lookup: {
+          from: 'councilidentities',
+          localField: 'accountId',
+          foreignField: 'accountId',
+          as: 'additionalInfo',
+        },
+      },
     ]);
 
     if (data.length == 0) {
@@ -51,12 +59,29 @@ const councilMember = async (req, res, next) => {
           name: backerName[0] !== undefined ? backerName[0].display : null,
         };
       });
+
+      const additionalInfo =
+        data[0].additionalInfo[0] !== undefined
+          ? data[0].additionalInfo.map((x) => {
+              return {
+                vision: x.vision,
+                members: x.members.map((y) => {
+                  return {
+                    member: y.member,
+                    role: y.role !== undefined ? y.role : null,
+                    twitter: y.twitter !== undefined ? y.twitter : null,
+                  };
+                }),
+              };
+            })
+          : [{}];
       return {
         name: name,
         accountId: x.accountId,
         backing: backing,
         totalBalance: totalBalance,
         backersInfo: backersInfo,
+        additionalInfo: additionalInfo[0],
       };
     });
 

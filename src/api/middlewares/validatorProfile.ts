@@ -26,7 +26,7 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'yieldscanidentities',
+          from: 'validatoridentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'additionalInfo',
