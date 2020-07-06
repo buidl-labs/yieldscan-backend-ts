@@ -14,13 +14,10 @@ export default (app: Router) => {
 
   route.get('/members', middlewares.councilMembers);
   route.get('/member/:id', middlewares.councilMember);
-  route.post(
+  route.put(
     '/member/:id/update',
     celebrate({
       body: Joi.object({
-        accountId: Joi.string().required(),
-        stashId: Joi.string().required(),
-        connectedStashId: Joi.string().required(),
         vision: Joi.string(),
         members: Joi.array().items(
           Joi.object({

@@ -9,25 +9,18 @@ const updateCouncilProfile = async (req, res, next) => {
   try {
     const id = req.params.id;
     const data = req.body;
-    const { accountId, stashId, connectedStashId, vision, members } = data;
-
-    if (stashId !== connectedStashId || connectedStashId !== id) {
-      throw new HttpError(401, 'Unauthorized');
-    }
+    const { vision, members } = data;
 
     const Council = Container.get('Council') as mongoose.Model<ICouncil & mongoose.Document>;
     const councilMember = await Council.aggregate([
       {
         $match: {
-          accountId: accountId,
+          accountId: id,
         },
       },
     ]);
     if (councilMember[0] == undefined) {
       throw new HttpError(404, 'No active council member id found for this id');
-    }
-    if (accountId !== connectedStashId) {
-      throw new HttpError(401, 'Unauthorized');
     }
 
     const CouncilIdentity = Container.get('CouncilIdentity') as mongoose.Model<ICouncilIdentity & mongoose.Document>;
@@ -37,8 +30,8 @@ const updateCouncilProfile = async (req, res, next) => {
     const updatedMembers = members !== undefined ? members : null;
 
     await CouncilIdentity.updateOne(
-      { accountId: accountId },
-      { $set: { accountId: accountId, vision: updatedVision, members: updatedMembers, lastUpdate: '$$NOW' } },
+      { accountId: id },
+      { $set: { accountId: id, vision: updatedVision, members: updatedMembers } },
       { upsert: true },
     );
     return res.status(200).json({ status: 200, message: 'Info updated' });

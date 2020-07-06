@@ -15,12 +15,10 @@ export default (app: Router) => {
 
   route.get('/:id', middlewares.validatorProfile);
 
-  route.post(
+  route.put(
     '/:id/update',
     celebrate({
       body: Joi.object({
-        stashId: Joi.string().required(),
-        connectedStashId: Joi.string().required(),
         vision: Joi.string(),
         members: Joi.array().items(
           Joi.object({

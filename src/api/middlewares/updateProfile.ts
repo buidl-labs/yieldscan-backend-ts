@@ -1,7 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IValidatorIdentity } from '../../interfaces/IValidatorIdentity';
-import { HttpError, getLinkedValidators } from '../../services/utils';
+import { HttpError } from '../../services/utils';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
 
 const updateProfile = async (req, res, next) => {
@@ -9,19 +9,16 @@ const updateProfile = async (req, res, next) => {
   try {
     const id = req.params.id;
     const data = req.body;
-    const { stashId, connectedStashId, vision, members } = data;
+    const { vision, members } = data;
 
     const SessionValidators = Container.get('SessionValidators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     const validator = await SessionValidators.aggregate([
       {
         $match: {
-          stashId: stashId,
+          stashId: id,
         },
       },
     ]);
-    if (stashId !== connectedStashId || connectedStashId !== id) {
-      throw new HttpError(401, 'Unauthorized');
-    }
     if (validator[0] == undefined) {
       throw new HttpError(404, 'No active validator id found for this id');
     }
@@ -35,8 +32,8 @@ const updateProfile = async (req, res, next) => {
     const updatedMembers = members !== undefined ? members : null;
 
     await ValidatorIdentity.updateOne(
-      { stashId: stashId },
-      { $set: { stashId: stashId, vision: updatedVision, members: updatedMembers, lastUpdate: '$$NOW' } },
+      { stashId: id },
+      { $set: { stashId: id, vision: updatedVision, members: updatedMembers } },
       { upsert: true },
     );
     return res.status(200).json({ status: 200, message: 'Info updated' });
