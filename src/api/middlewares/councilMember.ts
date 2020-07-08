@@ -75,13 +75,27 @@ const councilMember = async (req, res, next) => {
               };
             })
           : [{}];
+
+      const socialInfo =
+        data[0].memberIdentity[0] !== undefined
+          ? data[0].memberIdentity.map((x) => {
+              return {
+                name: x.display,
+                email: x.email,
+                legal: x.legal,
+                riot: x.riot,
+                twitter: x.twitter,
+                web: x.web,
+              };
+            })
+          : [{}];
       return {
-        name: name,
         accountId: x.accountId,
         backing: backing,
         totalBalance: totalBalance,
         backersInfo: backersInfo,
         additionalInfo: additionalInfo[0],
+        socialInfo: socialInfo[0],
       };
     });
 
