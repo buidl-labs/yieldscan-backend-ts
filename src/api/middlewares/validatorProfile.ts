@@ -97,17 +97,20 @@ const validatorProfile = async (req, res, next) => {
         : [{}];
 
     const additionalInfo =
-      sortedData[0].additionalInfo[0] !== undefined
+      sortedData[0].additionalInfo[0] !== (undefined || null)
         ? sortedData[0].additionalInfo.map((x) => {
             return {
               vision: x.vision,
-              members: x.members.map((y) => {
-                return {
-                  member: y.member,
-                  role: y.role !== undefined ? y.role : null,
-                  twitter: y.twitter !== undefined ? y.twitter : null,
-                };
-              }),
+              members:
+                x.members !== (undefined || null)
+                  ? x.members.map((y) => {
+                      return {
+                        member: y.member,
+                        role: y.role !== undefined ? y.role : null,
+                        twitter: y.twitter !== undefined ? y.twitter : null,
+                      };
+                    })
+                  : [],
             };
           })
         : [{}];
