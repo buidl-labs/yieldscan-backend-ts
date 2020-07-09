@@ -49,7 +49,6 @@ const councilMember = async (req, res, next) => {
     const result = data.map((x) => {
       const totalBalance = x.totalBalance / Math.pow(10, 12);
       const backing = x.stake / Math.pow(10, 12);
-      const name = x.memberIdentity[0] !== undefined ? x.memberIdentity[0].display : null;
       const backersInfo = x.backersInfo.map((y) => {
         const stake = y.stake / Math.pow(10, 12);
         const backerName = x.backersIdentity.filter((z) => z.accountId == y.backer);
@@ -65,13 +64,14 @@ const councilMember = async (req, res, next) => {
           ? data[0].additionalInfo.map((x) => {
               return {
                 vision: x.vision,
-                members: x.members.map((y) => {
-                  return {
-                    member: y.member,
-                    role: y.role !== undefined ? y.role : null,
-                    twitter: y.twitter !== undefined ? y.twitter : null,
-                  };
-                }),
+                // currently members not inludeded in council member profile
+                // members: x.members.map((y) => {
+                //   return {
+                //     member: y.member,
+                //     role: y.role !== undefined ? y.role : null,
+                //     twitter: y.twitter !== undefined ? y.twitter : null,
+                //   };
+                // }),
               };
             })
           : [{}];
