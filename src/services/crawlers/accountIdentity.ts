@@ -9,15 +9,20 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('start accountIdentity');
 
-    // get all stashes
-    const allStashes = await api.derive.staking.stashes();
+    // get all accountIds
 
-    // get all stashes account info
+    const getAccountId = (account) =>
+      account
+        .map((e) => e.args)
+        .map(([e]) => e)
+        .map((e) => e.toHuman());
+
+    const accountIds = getAccountId(await api.query.system.account.keys());
+    // get all account identity info
 
     const accountsInfo = await Promise.all(
-      allStashes.map(async (x) => {
-        const info = await api.derive.accounts.info(x.toString());
-        const accountId = info.accountId.toString();
+      accountIds.map(async (x) => {
+        const info = await api.derive.accounts.info(x);
         const display = info.identity.display !== undefined ? info.identity.display.toString() : null;
         const email = info.identity.email !== undefined ? info.identity.email.toString() : null;
         const legal = info.identity.legal !== undefined ? info.identity.legal.toString() : null;
@@ -25,8 +30,8 @@ module.exports = {
         const web = info.identity.web !== undefined ? info.identity.web.toString() : null;
         const twitter = info.identity.twitter !== undefined ? info.identity.twitter.toString() : null;
         return {
-          stashId: x.toString(),
-          accountId: accountId,
+          stashId: x,
+          accountId: x,
           display: display,
           email: email,
           legal: legal,
