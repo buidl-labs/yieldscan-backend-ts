@@ -8,6 +8,9 @@ export interface IActiveNominators {
       commission: number;
       totalStake: number;
       riskScore: number;
+      isElected: boolean;
+      isNextElected: boolean;
+      isWaiting: boolean;
       claimedRewards: [number];
       estimatedReward: number;
     },

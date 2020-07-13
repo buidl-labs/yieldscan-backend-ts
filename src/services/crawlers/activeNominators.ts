@@ -35,6 +35,9 @@ module.exports = {
                 totalStake: x.totalStake,
                 nomStake: y.stake,
                 riskScore: riskScore,
+                isElected: x.isElected,
+                isNextElected: x.isNextElected,
+                isWaiting: x.isWaiting,
                 claimedRewards: x.claimedRewards,
                 estimatedReward:
                   ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
