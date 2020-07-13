@@ -1,14 +1,16 @@
 import mongoose from 'mongoose';
+
 import { IStakingInfo } from '../interfaces/IStakingInfo';
-const SessionValidators = new mongoose.Schema(
+
+const Validators = new mongoose.Schema(
   {
+    stashId: String,
+    controllerId: String,
+    accountId: String,
     riskScore: Number,
     estimatedPoolReward: Number,
     activeErasCount: Number,
     totalSlashCount: Number,
-    stashId: String,
-    controllerId: String,
-    accountId: String,
     commission: Number,
     totalStake: Number,
     ownStake: Number,
@@ -26,4 +28,5 @@ const SessionValidators = new mongoose.Schema(
   },
   { timestamps: true },
 );
-export default mongoose.model<IStakingInfo & mongoose.Document>('sessionValidators', SessionValidators);
+
+export default mongoose.model<IStakingInfo & mongoose.Document>('Validators', Validators);

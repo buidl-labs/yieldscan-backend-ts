@@ -10,6 +10,9 @@ export interface IStakingInfo {
   commission: number;
   totalStake: number;
   ownStake: number;
+  isElected: boolean;
+  isNextElected: boolean;
+  isWaiting: boolean;
   nominators: [
     {
       nomId: string;

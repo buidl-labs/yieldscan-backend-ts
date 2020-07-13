@@ -67,8 +67,8 @@ export default {
       module: require('../services/crawlers/nextElected'),
     },
     {
-      enabled: process.env.CRAWLER_SESSION_VALIDATORS_ENABLED,
-      module: require('../services/crawlers/sessionValidators'),
+      enabled: process.env.CRAWLER_VALIDATORS_ENABLED,
+      module: require('../services/crawlers/validators'),
     },
     {
       enabled: process.env.CRAWLER_WAITING_VALIDATORS_ENABLED,

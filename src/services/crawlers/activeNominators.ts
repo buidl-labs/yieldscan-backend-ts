@@ -10,19 +10,19 @@ module.exports = {
   start: async function (api) {
     const Logger = Container.get('logger');
     Logger.info('start activeNominators');
-    const SessionValidators = Container.get('SessionValidators') as mongoose.Model<IStakingInfo & mongoose.Document>;
-    const sessionValidators = await SessionValidators.find({});
+    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const validators = await Validators.find({});
 
-    const nominatorsInfo = await module.exports.getNominatorsInfo(sessionValidators);
+    const nominatorsInfo = await module.exports.getNominatorsInfo(validators);
 
     await module.exports.getDailyEarnings(nominatorsInfo);
 
     Logger.info('stop activeNominators');
   },
 
-  getNominatorsInfo: async function (sessionValidators) {
+  getNominatorsInfo: async function (validators) {
     const result = [];
-    sessionValidators.map((x) => {
+    validators.map((x) => {
       const estimatedPoolReward = x.estimatedPoolReward;
       const riskScore = x.riskScore;
       x.nominators.forEach((y) => {
@@ -52,6 +52,9 @@ module.exports = {
                 totalStake: x.totalStake,
                 nomStake: y.stake,
                 riskScore: riskScore,
+                isElected: x.isElected,
+                isNextElected: x.isNextElected,
+                isWaiting: x.isWaiting,
                 claimedRewards: x.claimedRewards,
                 estimatedReward:
                   ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /

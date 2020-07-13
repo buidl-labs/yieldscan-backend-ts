@@ -9,28 +9,47 @@ import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 module.exports = {
   start: async function (api) {
     const Logger = Container.get('logger');
-    Logger.info('start sessionValidators');
-    const sessionValidators = await api.query.session.validators();
+    Logger.info('start validators');
+
+    const allStashes = (await api.derive.staking.stashes()).map((x) => x.toString());
+    const sessionAndNextElectedValidators = await api.derive.staking.validators();
+    const waitingValidators = (await api.derive.staking.waitingInfo()).waiting.map((x) => x.toString());
+    const sessionValidators = sessionAndNextElectedValidators.validators.map((x) => x.toString());
+
+    // we need to do the following because all stashes was missing one of the validators on crosschecking
+    sessionValidators.map((x) => {
+      if (!allStashes.includes(x)) {
+        allStashes.push(x);
+      }
+    });
+
+    const nextElected = sessionAndNextElectedValidators.nextElected.map((x) => x.toString());
     // Logger.debug(sessionValidators);
-    const stakingInfo = await module.exports.getStakingInfo(api, sessionValidators);
+    const stakingInfo = await module.exports.getStakingInfo(
+      api,
+      sessionValidators,
+      nextElected,
+      waitingValidators,
+      allStashes,
+    );
     // Logger.debug(stakingInfo);
-    const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, sessionValidators, stakingInfo);
+    const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, allStashes, stakingInfo);
     await module.exports.getRiskScore(stakingInfoWithRewards);
 
     // save next elected information
-    const SessionValidators = Container.get('SessionValidators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     try {
-      await SessionValidators.deleteMany({});
-      await SessionValidators.insertMany(stakingInfoWithRewards);
+      await Validators.deleteMany({});
+      await Validators.insertMany(stakingInfoWithRewards);
     } catch (error) {
       Logger.error(error);
     }
-    Logger.info('stop sessionValidators');
+    Logger.info('stop validators');
   },
 
-  getStakingInfo: async function (api, sessionValidators): Promise<Array<IStakingInfo>> {
+  getStakingInfo: async function (api, sessionValidators, nextElected, waitingValidators, allStashes) {
     await wait(5000);
-    const stakingInfo = await Promise.all(sessionValidators.map((valId) => api.derive.staking.account(valId)));
+    const stakingInfo = await Promise.all(allStashes.map((valId) => api.derive.staking.account(valId)));
     return stakingInfo.map((x) => {
       const stashId = x.stashId.toString();
       const accountId = x.accountId.toString();
@@ -53,6 +72,9 @@ module.exports = {
         accountId: accountId,
         commission: commission,
         totalStake: totalStake,
+        isElected: sessionValidators.includes(stashId),
+        isNextElected: nextElected.includes(stashId),
+        isWaiting: waitingValidators.includes(stashId),
         ownStake: ownStake,
         nominators: nominators,
         claimedRewards: claimedRewards,
@@ -60,10 +82,9 @@ module.exports = {
     });
   },
 
-  getEstimatedPoolReward: async function (api, sessionValidators, stakingInfo: Array<IStakingInfo>) {
+  getEstimatedPoolReward: async function (api, allStashes, stakingInfo: Array<IStakingInfo>) {
     await wait(5000);
-    const Logger = Container.get('logger');
-    const sessionValidatorsArr = sessionValidators.map((x) => x.toString());
+    // const Logger = Container.get('logger');
     const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
@@ -72,7 +93,7 @@ module.exports = {
     const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
     const historyData = await ValidatorHistory.aggregate([
       {
-        $match: { stashId: { $in: sessionValidatorsArr } },
+        $match: { stashId: { $in: allStashes } },
       },
       {
         $group: {
