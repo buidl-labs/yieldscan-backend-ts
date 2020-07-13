@@ -49,6 +49,12 @@ export default async ({ expressApp }) => {
       model: require('../models/sessionValidators').default,
     },
     {
+      name: 'WaitingValidators',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/waitingValidators').default,
+    },
+    {
       name: 'NominatorHistory',
       // Notice the require syntax and the '.default'
       // eslint-disable-next-line @typescript-eslint/no-var-requires

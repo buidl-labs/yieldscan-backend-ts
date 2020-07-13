@@ -71,6 +71,10 @@ export default {
       module: require('../services/crawlers/sessionValidators'),
     },
     {
+      enabled: process.env.CRAWLER_WAITING_VALIDATORS_ENABLED,
+      module: require('../services/crawlers/waitingValidators'),
+    },
+    {
       enabled: process.env.CRAWLER_ACTIVE_NOMINATORS_ENABLED,
       module: require('../services/crawlers/activeNominators'),
     },
