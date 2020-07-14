@@ -99,9 +99,6 @@ module.exports = {
       x.dailyEarnings = earnings.reduce((a, b) => a + b, 0);
     });
 
-    nominatorsInfo.map((x) => {
-      console.log(JSON.stringify(x, null, 2));
-    });
     const ActiveNominators = Container.get('ActiveNominators') as mongoose.Model<IActiveNominators & mongoose.Document>;
     await ActiveNominators.deleteMany({});
     await ActiveNominators.insertMany(nominatorsInfo);

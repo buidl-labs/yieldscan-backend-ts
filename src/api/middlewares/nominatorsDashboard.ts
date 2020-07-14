@@ -7,9 +7,29 @@ const nominatorsDashboard = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
     const ActiveNominators = Container.get('ActiveNominators') as mongoose.Model<IActiveNominators & mongoose.Document>;
-    const sortedData = await ActiveNominators.find({}).sort({
-      dailyEarnings: -1,
-    });
+    const sortedData = await ActiveNominators.aggregate([
+      {
+        $match: {
+          'validatorsInfo.isWaiting': false,
+        },
+      },
+      // removed/commented lookup for accountIdentity because it was reducing performance for
+      // fetching all the nominators identity at once
+      // Todo: add pagination for better performance with identity.
+      // {
+      //   $lookup: {
+      //     from: 'accountidentities',
+      //     localField: 'nomId',
+      //     foreignField: 'accountId',
+      //     as: 'info',
+      //   },
+      // },
+      {
+        $sort: {
+          dailyEarnings: -1,
+        },
+      },
+    ]);
 
     if (sortedData.length == 0) {
       Logger.error('🔥 No Data found: %o');
@@ -31,6 +51,7 @@ const nominatorsDashboard = async (req, res, next) => {
         nomtotalStake: nomtotalStake,
         dailyEarnings: x.dailyEarnings,
         nominations: nominations,
+        // name: x.info[0] !== undefined ? x.info[0].display : null,
       };
     });
 
