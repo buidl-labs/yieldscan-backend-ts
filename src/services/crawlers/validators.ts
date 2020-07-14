@@ -24,12 +24,21 @@ module.exports = {
     });
 
     const nextElected = sessionAndNextElectedValidators.nextElected.map((x) => x.toString());
+
+    const nominations = (await api.query.staking.nominators.entries()).map((x) => {
+      return {
+        nomId: x[0].args[0].toString(),
+        targets: x[1].unwrap().targets.map((y) => y.toString()),
+      };
+    });
+
     // Logger.debug(sessionValidators);
     const stakingInfo = await module.exports.getStakingInfo(
       api,
       sessionValidators,
       nextElected,
       waitingValidators,
+      nominations,
       allStashes,
     );
     // Logger.debug(stakingInfo);
@@ -47,7 +56,7 @@ module.exports = {
     Logger.info('stop validators');
   },
 
-  getStakingInfo: async function (api, sessionValidators, nextElected, waitingValidators, allStashes) {
+  getStakingInfo: async function (api, sessionValidators, nextElected, waitingValidators, nominations, allStashes) {
     await wait(5000);
     const stakingInfo = await Promise.all(allStashes.map((valId) => api.derive.staking.account(valId)));
     return stakingInfo.map((x) => {
@@ -55,17 +64,25 @@ module.exports = {
       const accountId = x.accountId.toString();
       const controllerId = x.controllerId.toString();
       const commission = parseInt(x.validatorPrefs.commission);
-      const totalStake = parseInt(x.exposure.total);
-      const ownStake = parseInt(x.exposure.own);
+      const totalStake = !waitingValidators.includes(stashId)
+        ? parseInt(x.exposure.total)
+        : parseInt(x.stakingLedger.total);
+      const ownStake = !waitingValidators.includes(stashId) ? parseInt(x.exposure.own) : null;
       const claimedRewards = x.stakingLedger.claimedRewards.map((era) => parseInt(era));
-      const nominators = x.exposure.others.map((y) => {
-        const nomId = y.who.toString();
-        const stake = parseInt(y.value);
-        return {
-          nomId: nomId,
-          stake: stake,
-        };
-      });
+      const nominators = !waitingValidators.includes(stashId)
+        ? x.exposure.others.map((y) => {
+            const nomId = y.who.toString();
+            const stake = parseInt(y.value);
+            return {
+              nomId: nomId,
+              stake: stake,
+            };
+          })
+        : nominations
+            .filter((y) => y.targets.includes(stashId))
+            .map((z) => {
+              return { nomId: z.nomId };
+            });
       return {
         stashId: stashId,
         controllerId: controllerId,
@@ -153,20 +170,28 @@ module.exports = {
     await wait(5000);
     const maxNomCount = Math.max(...stakingInfo.map((x) => x.nominators.length));
     const minNomCount = Math.min(...stakingInfo.map((x) => x.nominators.length));
-    const maxOwnStake = Math.max(...stakingInfo.map((x) => x.ownStake));
-    const minOwnStake = Math.min(...stakingInfo.map((x) => x.ownStake));
-    const maxOthersStake = Math.max(...stakingInfo.map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)));
-    const minOthersStake = Math.min(...stakingInfo.map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)));
+    const maxTotalStake = Math.max(...stakingInfo.map((x) => x.totalStake));
+    const minTotalStake = Math.min(...stakingInfo.map((x) => x.totalStake));
+    const maxOwnStake = Math.max(...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.ownStake));
+    const minOwnStake = Math.min(...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.ownStake));
+    const maxOthersStake = Math.max(
+      ...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)),
+    );
+    const minOthersStake = Math.min(
+      ...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)),
+    );
     const riskScoreArr = [];
     stakingInfo.forEach((element) => {
-      const otherStake = element.nominators.reduce((a, b) => a + b.stake, 0);
+      const otherStake = !element.isWaiting ? element.nominators.reduce((a, b) => a + b.stake, 0) : null;
       const slashScore = element.totalSlashCount;
       const activevalidatingScore = 1 / (element.activeErasCount + 1);
       const backersScore = 1 / scaleData(element.nominators.length, maxNomCount, minNomCount);
-      const validatorOwnRisk = 1 / scaleData(element.ownStake, maxOwnStake, minOwnStake);
+      const validatorOwnRisk = !element.isWaiting ? 1 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 0;
+      const totalStakeScore = 1 / scaleData(element.totalStake, maxTotalStake, minTotalStake);
       // + 1 because othersStake can theoretically be 0
-      const otherStakeScore = 1 / scaleData(otherStake + 1, maxOthersStake, minOthersStake);
-      const riskScore = slashScore + activevalidatingScore + backersScore + otherStakeScore + validatorOwnRisk;
+      const otherStakeScore = !element.isWaiting ? 1 / scaleData(otherStake + 1, maxOthersStake, minOthersStake) : 0;
+      const riskScore =
+        slashScore + activevalidatingScore + backersScore + otherStakeScore + validatorOwnRisk + totalStakeScore;
 
       riskScoreArr.push({
         riskScore: riskScore,

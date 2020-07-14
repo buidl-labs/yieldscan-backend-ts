@@ -39,9 +39,11 @@ module.exports = {
                 isNextElected: x.isNextElected,
                 isWaiting: x.isWaiting,
                 claimedRewards: x.claimedRewards,
-                estimatedReward:
-                  ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
-                  x.totalStake,
+                estimatedPoolReward: estimatedPoolReward,
+                estimatedReward: !x.isWaiting
+                  ? ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
+                    x.totalStake
+                  : null,
               });
             }
           });
@@ -59,9 +61,11 @@ module.exports = {
                 isNextElected: x.isNextElected,
                 isWaiting: x.isWaiting,
                 claimedRewards: x.claimedRewards,
-                estimatedReward:
-                  ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
-                  x.totalStake,
+                estimatedPoolReward: estimatedPoolReward,
+                estimatedReward: !x.isWaiting
+                  ? ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
+                    x.totalStake
+                  : null,
               },
             ],
           });
@@ -93,6 +97,10 @@ module.exports = {
         return result;
       });
       x.dailyEarnings = earnings.reduce((a, b) => a + b, 0);
+    });
+
+    nominatorsInfo.map((x) => {
+      console.log(JSON.stringify(x, null, 2));
     });
     const ActiveNominators = Container.get('ActiveNominators') as mongoose.Model<IActiveNominators & mongoose.Document>;
     await ActiveNominators.deleteMany({});
