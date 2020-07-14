@@ -16,6 +16,7 @@ const ActiveNominators = new mongoose.Schema(
         isWaiting: Boolean,
         claimedRewards: [Number],
         estimatedReward: Number,
+        estimatedPoolReward: Number,
       },
     ],
   },

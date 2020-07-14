@@ -13,6 +13,7 @@ export interface IActiveNominators {
       isWaiting: boolean;
       claimedRewards: [number];
       estimatedReward: number;
+      estimatedPoolReward: number;
     },
   ];
 }
