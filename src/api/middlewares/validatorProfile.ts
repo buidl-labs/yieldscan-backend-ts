@@ -2,15 +2,14 @@ import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { HttpError, getLinkedValidators } from '../../services/utils';
-import { removeListener } from 'process';
 
 const validatorProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
     const id = req.params.id;
-    const SessionValidators = Container.get('SessionValidators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
 
-    const sortedData = await SessionValidators.aggregate([
+    const data = await Validators.aggregate([
       {
         $match: {
           stashId: id,
@@ -26,6 +25,14 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
+          from: 'accountidentities',
+          localField: 'nominators.nomId',
+          foreignField: 'stashId',
+          as: 'nomInfo',
+        },
+      },
+      {
+        $lookup: {
           from: 'validatoridentities',
           localField: 'stashId',
           foreignField: 'stashId',
@@ -34,12 +41,12 @@ const validatorProfile = async (req, res, next) => {
       },
     ]);
 
-    if (sortedData.length == 0) {
+    if (data.length == 0) {
       Logger.error('🔥 No Data found: %o');
       throw new HttpError(404, 'No data found');
     }
 
-    sortedData.map((x) => {
+    data.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.ownStake = x.ownStake / Math.pow(10, 12);
@@ -49,18 +56,23 @@ const validatorProfile = async (req, res, next) => {
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
 
-    const stakingInfo = sortedData.map((x) => {
-      const nominatorsInfo = x.nominators.map((x) => {
-        x.stake = x.stake / Math.pow(10, 12);
-        return { nomId: x.nomId, stake: x.stake };
+    const stakingInfo = data.map((x) => {
+      const nominatorsInfo = x.nominators.map((y) => {
+        y.stake = y.stake / Math.pow(10, 12);
+        const name = x.nomInfo.filter((z) => y.nomId == z.stashId);
+        return { nomId: y.nomId, stake: y.stake, name: name[0] !== undefined ? name[0].display : null };
       });
       return {
         ownStake: x.ownStake,
+        totalStake: x.totalStake,
+        isElected: x.isElected,
+        isNextElected: x.isNextElected,
+        isWaiting: x.isWaiting,
         nominatorsInfo: nominatorsInfo,
       };
     });
 
-    const keyStats = sortedData.map(
+    const keyStats = data.map(
       ({
         stashId,
         commission,
@@ -83,8 +95,8 @@ const validatorProfile = async (req, res, next) => {
     );
 
     const socialInfo =
-      sortedData[0].info[0] !== undefined
-        ? sortedData[0].info.map((x) => {
+      data[0].info[0] !== undefined
+        ? data[0].info.map((x) => {
             return {
               name: x.display,
               email: x.email,
@@ -97,8 +109,8 @@ const validatorProfile = async (req, res, next) => {
         : [{}];
 
     const additionalInfo =
-      sortedData[0].additionalInfo[0] !== (undefined || null)
-        ? sortedData[0].additionalInfo.map((x) => {
+      data[0].additionalInfo[0] !== (undefined || null)
+        ? data[0].additionalInfo.map((x) => {
             return {
               vision: x.vision,
               members:
