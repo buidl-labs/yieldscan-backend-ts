@@ -7,8 +7,8 @@ import { HttpError } from '../../services/utils';
 const max_set = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
-    const NextElected = Container.get('NextElected') as mongoose.Model<IStakingInfo & mongoose.Document>;
-    const sortedData = await NextElected.find({}).sort({
+    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const sortedData = await Validators.find({ isNextElected: true }).sort({
       rewardsPer100KSM: -1,
     });
 

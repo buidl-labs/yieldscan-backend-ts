@@ -6,9 +6,14 @@ import { HttpError } from '../../services/utils';
 const validatorsDashboard = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
-    const SessionValidators = Container.get('SessionValidators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
 
-    const sortedData = await SessionValidators.aggregate([
+    const sortedData = await Validators.aggregate([
+      {
+        $match: {
+          isElected: true,
+        },
+      },
       {
         $lookup: {
           from: 'accountidentities',
@@ -45,6 +50,7 @@ const validatorsDashboard = async (req, res, next) => {
         commission,
         ownStake,
         othersStake,
+        totalStake,
         estimatedPoolReward,
         numOfNominators,
         rewardsPer100KSM,
@@ -55,6 +61,7 @@ const validatorsDashboard = async (req, res, next) => {
         commission,
         ownStake,
         othersStake,
+        totalStake,
         estimatedPoolReward,
         numOfNominators,
         rewardsPer100KSM,

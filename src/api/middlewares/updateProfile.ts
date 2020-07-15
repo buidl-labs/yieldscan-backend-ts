@@ -11,8 +11,8 @@ const updateProfile = async (req, res, next) => {
     const data = req.body;
     const { vision, members } = data;
 
-    const SessionValidators = Container.get('SessionValidators') as mongoose.Model<IStakingInfo & mongoose.Document>;
-    const validator = await SessionValidators.aggregate([
+    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const validator = await Validators.aggregate([
       {
         $match: {
           stashId: id,
@@ -20,7 +20,7 @@ const updateProfile = async (req, res, next) => {
       },
     ]);
     if (validator[0] == undefined) {
-      throw new HttpError(404, 'No active validator id found for this id');
+      throw new HttpError(404, 'No validator id found for this id');
     }
 
     const ValidatorIdentity = Container.get('ValidatorIdentity') as mongoose.Model<

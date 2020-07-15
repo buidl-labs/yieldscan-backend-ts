@@ -1,9 +1,9 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { sortLowRisk, sortMedRisk, HttpError } from '../../services/utils';
+import { HttpError } from '../../services/utils';
 
-const risk_set = async (req, res, next) => {
+const waitingDashboard = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
     const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
@@ -11,7 +11,7 @@ const risk_set = async (req, res, next) => {
     const sortedData = await Validators.aggregate([
       {
         $match: {
-          isNextElected: true,
+          isWaiting: true,
         },
       },
       {
@@ -37,51 +37,42 @@ const risk_set = async (req, res, next) => {
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
+      //   x.ownStake = x.ownStake / Math.pow(10, 12);
+      //   x.othersStake = x.nominators.reduce((a, b) => a + b.stake, 0) / Math.pow(10, 12);
       x.numOfNominators = x.nominators.length;
-      x.ownStake = x.ownStake / Math.pow(10, 12);
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
 
-    const arr1 = sortedData.map(
+    const result = sortedData.map(
       ({
         stashId,
-        commission,
+        commission, // othersStake, // ownStake,
         totalStake,
         estimatedPoolReward,
         numOfNominators,
         rewardsPer100KSM,
         riskScore,
         name,
-        ownStake,
       }) => ({
         stashId,
         commission,
+        // ownStake,
+        // othersStake,
         totalStake,
         estimatedPoolReward,
         numOfNominators,
         rewardsPer100KSM,
         riskScore,
         name,
-        ownStake,
       }),
     );
 
-    const lowRiskSortArr = sortLowRisk(arr1);
-    const medRiskSortArr = sortMedRisk(arr1);
-
-    const highriskset = arr1.slice(0, 16);
-    const result = {
-      lowriskset: lowRiskSortArr.length > 16 ? lowRiskSortArr.slice(0, 16) : lowRiskSortArr,
-      medriskset: medRiskSortArr.length > 16 ? medRiskSortArr.slice(0, 16) : medRiskSortArr,
-      highriskset: highriskset,
-      totalset: arr1,
-    };
-    return res.json(result).status(200);
+    res.json(result).status(200);
   } catch (e) {
-    Logger.error('🔥 Error generating risk-sets: %o', e);
+    Logger.error('🔥 Error fetching validators data: %o', e);
     return next(e);
   }
 };
 
-export default risk_set;
+export default waitingDashboard;

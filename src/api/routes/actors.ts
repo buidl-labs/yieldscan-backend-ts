@@ -7,5 +7,6 @@ export default (app: Router) => {
   app.use('/actors', route);
 
   route.get('/validators', middlewares.validatorsDashboard);
+  route.get('/waiting', middlewares.waitingDashboard);
   route.get('/nominators', middlewares.nominatorsDashboard);
 };
