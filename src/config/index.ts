@@ -63,16 +63,8 @@ export default {
       module: require('../services/crawlers/accountIdentity'),
     },
     {
-      enabled: process.env.CRAWLER_NEXT_ELECTED,
-      module: require('../services/crawlers/nextElected'),
-    },
-    {
       enabled: process.env.CRAWLER_VALIDATORS_ENABLED,
       module: require('../services/crawlers/validators'),
-    },
-    {
-      enabled: process.env.CRAWLER_WAITING_VALIDATORS_ENABLED,
-      module: require('../services/crawlers/waitingValidators'),
     },
     {
       enabled: process.env.CRAWLER_ACTIVE_NOMINATORS_ENABLED,

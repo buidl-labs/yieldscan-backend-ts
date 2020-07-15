@@ -19,12 +19,6 @@ export default async ({ expressApp }) => {
 
   const models = [
     {
-      name: 'NextElected',
-      // Notice the require syntax and the '.default'
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      model: require('../models/nextElected').default,
-    },
-    {
       name: 'ValidatorHistory',
       // Notice the require syntax and the '.default'
       // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -47,18 +41,6 @@ export default async ({ expressApp }) => {
       // Notice the require syntax and the '.default'
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       model: require('../models/validators').default,
-    },
-    {
-      name: 'SessionValidators',
-      // Notice the require syntax and the '.default'
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      model: require('../models/sessionValidators').default,
-    },
-    {
-      name: 'WaitingValidators',
-      // Notice the require syntax and the '.default'
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      model: require('../models/waitingValidators').default,
     },
     {
       name: 'NominatorHistory',
