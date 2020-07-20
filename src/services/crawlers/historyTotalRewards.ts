@@ -24,6 +24,7 @@ module.exports = {
       }
     }
     Logger.info('stop historyTotalRewards');
+    return;
   },
 
   getRewards: async function (api, eraIndex) {

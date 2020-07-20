@@ -5,6 +5,7 @@ import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { INominatorHistory } from '../../interfaces/INominatorHistory';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
+import LoggerInstance from '../../loaders/logger';
 
 module.exports = {
   start: async function (api) {
@@ -18,6 +19,7 @@ module.exports = {
     await module.exports.getDailyEarnings(nominatorsInfo);
 
     Logger.info('stop activeNominators');
+    return;
   },
 
   getNominatorsInfo: async function (validators) {
@@ -75,6 +77,7 @@ module.exports = {
     return result;
   },
   getDailyEarnings: async function (nominatorsInfo) {
+    const Logger = Container.get('logger');
     const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
@@ -98,11 +101,16 @@ module.exports = {
       });
       x.dailyEarnings = earnings.reduce((a, b) => a + b, 0);
     });
-
     const ActiveNominators = Container.get('ActiveNominators') as mongoose.Model<IActiveNominators & mongoose.Document>;
-    await ActiveNominators.deleteMany({});
-    await ActiveNominators.insertMany(nominatorsInfo);
 
+    try {
+      await ActiveNominators.deleteMany({});
+      await ActiveNominators.insertMany(nominatorsInfo);
+    } catch (error) {
+      Logger.error('Error while updating active nominators info', error);
+    }
+
+    return;
     // const lastIndex = lastIndexDB[0].eraIndex;
   },
 };

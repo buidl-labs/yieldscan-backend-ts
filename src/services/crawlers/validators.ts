@@ -33,7 +33,7 @@ module.exports = {
     });
 
     // Logger.debug(sessionValidators);
-    const stakingInfo = await module.exports.getStakingInfo(
+    let stakingInfo = await module.exports.getStakingInfo(
       api,
       sessionValidators,
       nextElected,
@@ -42,18 +42,21 @@ module.exports = {
       allStashes,
     );
     // Logger.debug(stakingInfo);
-    const stakingInfoWithRewards = await module.exports.getEstimatedPoolReward(api, allStashes, stakingInfo);
-    await module.exports.getRiskScore(stakingInfoWithRewards);
+    stakingInfo = await module.exports.getEstimatedPoolReward(api, allStashes, stakingInfo);
+    stakingInfo = await module.exports.getRiskScore(stakingInfo);
+
+    console.log(JSON.stringify(stakingInfo, null, 2));
 
     // save next elected information
     const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     try {
       await Validators.deleteMany({});
-      await Validators.insertMany(stakingInfoWithRewards);
+      await Validators.insertMany(stakingInfo);
     } catch (error) {
-      Logger.error(error);
+      Logger.error('Error while updating validators info', error);
     }
     Logger.info('stop validators');
+    return;
   },
 
   getStakingInfo: async function (api, sessionValidators, nextElected, waitingValidators, nominations, allStashes) {
@@ -204,5 +207,6 @@ module.exports = {
       const riskData = riskScoreArr.filter((y) => y.stashId == x.stashId);
       x.riskScore = normalizeData(riskData[0].riskScore, maxRS, minRS);
     });
+    return stakingInfo;
   },
 };

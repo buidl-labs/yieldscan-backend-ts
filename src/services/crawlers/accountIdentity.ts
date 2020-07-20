@@ -49,9 +49,14 @@ module.exports = {
     const AccountIdentity = Container.get('AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
 
     // todo replace delete insert logic with a more suitable process like update/updateMany
-    await AccountIdentity.deleteMany({});
-    await AccountIdentity.insertMany(accountsInfo);
+    try {
+      await AccountIdentity.deleteMany({});
+      await AccountIdentity.insertMany(accountsInfo);
+    } catch (error) {
+      Logger.error('Error while updating accountIdentities', error);
+    }
 
     Logger.info('stop accountIdentity');
+    return;
   },
 };

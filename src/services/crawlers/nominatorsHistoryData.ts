@@ -15,6 +15,7 @@ module.exports = {
       await module.exports.storeNominatorHistory(api, eraIndex);
     }
     Logger.info('stop historyData');
+    return;
   },
 
   getSlashes: async function (api, pointsHistory) {
@@ -96,7 +97,8 @@ module.exports = {
     try {
       await NominatorHistory.insertMany(historyData);
     } catch (err) {
-      Logger.error('Error', err);
+      Logger.error('Error while updating nominators history', err);
     }
+    return;
   },
 };

@@ -14,6 +14,7 @@ module.exports = {
       await module.exports.storeValidatorHistory(api, eraIndex);
     }
     Logger.info('stop historyData');
+    return;
   },
 
   getSlashes: async function (api, pointsHistory) {
@@ -31,7 +32,7 @@ module.exports = {
   },
 
   getEraIndexes: async function (api) {
-    const Logger = Container.get('logger');
+    // const Logger = Container.get('logger');
     const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
     const lastIndexDB = await ValidatorHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     // Logger.debug(lastIndexDB);
@@ -139,6 +140,11 @@ module.exports = {
 
     // insert data into DB
     const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
-    await ValidatorHistory.insertMany(rewards);
+    try {
+      await ValidatorHistory.insertMany(rewards);
+    } catch (error) {
+      Logger.error('Error while updating validator history data', error);
+    }
+    return;
   },
 };
