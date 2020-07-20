@@ -173,24 +173,24 @@ module.exports = {
     const minNomCount = Math.min(...stakingInfo.map((x) => x.nominators.length));
     const maxTotalStake = Math.max(...stakingInfo.map((x) => x.totalStake));
     const minTotalStake = Math.min(...stakingInfo.map((x) => x.totalStake));
-    const maxOwnStake = Math.max(...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.ownStake));
-    const minOwnStake = Math.min(...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.ownStake));
+    const maxOwnStake = Math.max(...stakingInfo.filter((x) => x.isElected).map((x) => x.ownStake));
+    const minOwnStake = Math.min(...stakingInfo.filter((x) => x.isElected).map((x) => x.ownStake));
     const maxOthersStake = Math.max(
-      ...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)),
+      ...stakingInfo.filter((x) => x.isElected).map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)),
     );
     const minOthersStake = Math.min(
-      ...stakingInfo.filter((x) => !x.isWaiting).map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)),
+      ...stakingInfo.filter((x) => x.isElected).map((x) => x.nominators.reduce((a, b) => a + b.stake, 0)),
     );
     const riskScoreArr = [];
     stakingInfo.forEach((element) => {
-      const otherStake = !element.isWaiting ? element.nominators.reduce((a, b) => a + b.stake, 0) : null;
+      const otherStake = element.isElected ? element.nominators.reduce((a, b) => a + b.stake, 0) : null;
       const slashScore = element.totalSlashCount;
       const activevalidatingScore = 1 / (element.activeErasCount + 1);
       const backersScore = 1 / scaleData(element.nominators.length, maxNomCount, minNomCount);
-      const validatorOwnRisk = !element.isWaiting ? 1 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 0;
+      const validatorOwnRisk = element.isElected ? 1 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 0;
       const totalStakeScore = 1 / scaleData(element.totalStake, maxTotalStake, minTotalStake);
       // + 1 because othersStake can theoretically be 0
-      const otherStakeScore = !element.isWaiting ? 1 / scaleData(otherStake + 1, maxOthersStake, minOthersStake) : 0;
+      const otherStakeScore = element.isElected ? 1 / scaleData(otherStake + 1, maxOthersStake, minOthersStake) : 0;
       const riskScore =
         slashScore + activevalidatingScore + backersScore + otherStakeScore + validatorOwnRisk + totalStakeScore;
 

@@ -42,7 +42,7 @@ module.exports = {
                 isWaiting: x.isWaiting,
                 claimedRewards: x.claimedRewards,
                 estimatedPoolReward: estimatedPoolReward,
-                estimatedReward: !x.isWaiting
+                estimatedReward: x.isElected
                   ? ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
                     x.totalStake
                   : null,
@@ -64,7 +64,7 @@ module.exports = {
                 isWaiting: x.isWaiting,
                 claimedRewards: x.claimedRewards,
                 estimatedPoolReward: estimatedPoolReward,
-                estimatedReward: !x.isWaiting
+                estimatedReward: x.isElected
                   ? ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
                     x.totalStake
                   : null,
