@@ -64,12 +64,12 @@ module.exports = {
       const accountId = x.accountId.toString();
       const controllerId = x.controllerId.toString();
       const commission = parseInt(x.validatorPrefs.commission);
-      const totalStake = !waitingValidators.includes(stashId)
+      const totalStake = sessionValidators.includes(stashId)
         ? parseInt(x.exposure.total)
         : parseInt(x.stakingLedger.total);
-      const ownStake = !waitingValidators.includes(stashId) ? parseInt(x.exposure.own) : null;
+      const ownStake = sessionValidators.includes(stashId) ? parseInt(x.exposure.own) : null;
       const claimedRewards = x.stakingLedger.claimedRewards.map((era) => parseInt(era));
-      const nominators = !waitingValidators.includes(stashId)
+      const nominators = sessionValidators.includes(stashId)
         ? x.exposure.others.map((y) => {
             const nomId = y.who.toString();
             const stake = parseInt(y.value);
