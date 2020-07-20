@@ -39,12 +39,16 @@ const nominatorsDashboard = async (req, res, next) => {
     const nomCount = sortedData.length;
     const totalRewards = sortedData.reduce((a, b) => a + b.dailyEarnings, 0);
     const totalAmountStaked = sortedData.reduce((a, b) => {
-      const nomtotalStake = b.validatorsInfo.reduce((x, y) => x + y.nomStake, 0);
+      const nomtotalStake = b.validatorsInfo.reduce((x, y) => {
+        return y.nomStake !== (null || undefined) ? x + y.nomStake : x;
+      }, 0);
       return a + nomtotalStake / Math.pow(10, 12);
     }, 0);
 
     const nominatorsInfo = sortedData.map((x) => {
-      const nomtotalStake = x.validatorsInfo.reduce((x, y) => y.nomStake, 0) / Math.pow(10, 12);
+      const nomtotalStake =
+        x.validatorsInfo.reduce((a, b) => (b.nomStake !== (null || undefined) ? a + b.nomStake : a), 0) /
+        Math.pow(10, 12);
       const nominations = x.validatorsInfo.length;
       return {
         nomId: x.nomId,
