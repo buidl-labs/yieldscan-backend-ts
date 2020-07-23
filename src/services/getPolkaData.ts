@@ -3,6 +3,7 @@ import { Service, Inject, Container } from 'typedi';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import config from '../config';
 import { wait } from './utils';
+import Logger from '../loaders/logger';
 Container.set('config', config);
 
 @Service()
@@ -21,23 +22,26 @@ export default class GetPolkaData {
   }
 
   async start(api, crawlers) {
-    const Logger = Container.get('logger');
+    api.on('error', async () => {
+      Logger.error('Error: API crashed');
+      await api.dissconnect();
+      process.exit(1);
+    });
     for (let i = 0; i < crawlers.length; i++) {
       await crawlers[i].module.start(api);
       await wait(5000);
     }
-    Logger.info('wating 30 secs');
-    await wait(30000);
+    Logger.info('wating 60 secs');
+    await wait(60000);
     return this.start(api, crawlers);
   }
 
   async getPolkadotAPI() {
-    const Logger = Container.get('logger');
     const provider = new WsProvider(this.config.wsProviderUrl);
-    provider.on('error', async () => {
-      Logger.error('Error: API crashed');
-      process.exit(1);
-    });
+    // provider.on('error', async () => {
+    //   Logger.error('Error: API crashed');
+    //   process.exit(1);
+    // });
     const api = await ApiPromise.create({ provider });
     try {
       await api.isReady;
