@@ -184,7 +184,8 @@ module.exports = {
     const riskScoreArr = [];
     stakingInfo.forEach((element) => {
       const otherStake = element.isElected ? element.nominators.reduce((a, b) => a + b.stake, 0) : null;
-      const slashScore = element.totalSlashCount;
+      // Todo: better formulae for handling high slash counts
+      const slashScore = Math.min(element.totalSlashCount, 2);
       const activevalidatingScore = 1 / (element.activeErasCount + 1);
       const backersScore = 1 / scaleData(element.nominators.length, maxNomCount, minNomCount);
       const validatorOwnRisk = element.isElected ? 1 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 0;
