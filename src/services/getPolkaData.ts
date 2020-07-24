@@ -22,11 +22,11 @@ export default class GetPolkaData {
   }
 
   async start(api, crawlers) {
-    api.on('error', async () => {
-      Logger.error('Error: API crashed');
-      await api.dissconnect();
-      process.exit(1);
-    });
+    // api.on('error', async () => {
+    //   Logger.error('Error: API crashed');
+    //   await api.dissconnect();
+    //   process.exit(1);
+    // });
     for (let i = 0; i < crawlers.length; i++) {
       await crawlers[i].module.start(api);
       await wait(5000);
@@ -38,10 +38,11 @@ export default class GetPolkaData {
 
   async getPolkadotAPI() {
     const provider = new WsProvider(this.config.wsProviderUrl);
-    // provider.on('error', async () => {
-    //   Logger.error('Error: API crashed');
-    //   process.exit(1);
-    // });
+    provider.on('error', async () => {
+      Logger.error('Error: API crashed');
+      await provider.dissconnect();
+      process.exit(1);
+    });
     const api = await ApiPromise.create({ provider });
     try {
       await api.isReady;
