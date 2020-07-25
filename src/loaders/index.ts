@@ -19,9 +19,58 @@ export default async ({ expressApp }) => {
 
   const models = [
     {
-      name: 'userModel',
+      name: 'ValidatorHistory',
       // Notice the require syntax and the '.default'
-      model: require('../models/user').default,
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/validatorHistory').default,
+    },
+    {
+      name: 'TotalRewardHistory',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/totalRewardHistory').default,
+    },
+    {
+      name: 'AccountIdentity',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/accountIdentity').default,
+    },
+    {
+      name: 'Validators',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/validators').default,
+    },
+    {
+      name: 'NominatorHistory',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/nominatorHistory').default,
+    },
+    {
+      name: 'ActiveNominators',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/activeNominators').default,
+    },
+    {
+      name: 'ValidatorIdentity',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/validatorIdentity').default,
+    },
+    {
+      name: 'Council',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/council').default,
+    },
+    {
+      name: 'CouncilIdentity',
+      // Notice the require syntax and the '.default'
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      model: require('../models/councilIdentity').default,
     },
   ];
 

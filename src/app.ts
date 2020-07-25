@@ -8,6 +8,17 @@ import Logger from './loaders/logger';
 
 import loaders from './loaders';
 
+import { Container } from 'typedi';
+import GetPolkaData from './services/getPolkaData';
+
+async function startCrawlers() {
+  Logger.info('starting crawlers');
+  const getPolkaDataInstance = Container.get(GetPolkaData);
+  await getPolkaDataInstance.runCrawlers();
+}
+
+startCrawlers();
+
 async function startServer() {
   const app = express();
 

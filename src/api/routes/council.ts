@@ -5,18 +5,17 @@ import { celebrate, Joi } from 'celebrate';
 // import config from '../../config';
 import middlewares from '../middlewares';
 const route = Router();
-
 // const corsOptions = { origin: config.domain };
 // cors(corsOptions) // add this after '/:id/update',
 
 export default (app: Router) => {
   // Register our endpoint for this route-apis
-  app.use('/validator', route);
+  app.use('/council', route);
 
-  route.get('/:id', middlewares.validatorProfile);
-
+  route.get('/members', middlewares.councilMembers);
+  route.get('/member/:id', middlewares.councilMember);
   route.put(
-    '/:id/update',
+    '/member/:id/update',
     celebrate({
       body: Joi.object({
         vision: Joi.string(),
@@ -29,6 +28,6 @@ export default (app: Router) => {
         ),
       }),
     }),
-    middlewares.updateProfile,
+    middlewares.updateCouncilProfile,
   );
 };
