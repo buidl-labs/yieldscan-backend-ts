@@ -27,7 +27,7 @@ cd yieldscan-backend-ts
   
 
 ``` 
-  MONGODB_URI=your mongo url
+MONGODB_URI=your mongo url
 WS_PROVIDER_URL='wss://kusama-rpc.polkadot.io'    //for Kusama
 CRAWLER_ERA_POINTS_HISTORY_ENABLE=true
 CRAWLER_NOMINATOR_HISTORY_ENABLE=true
@@ -37,17 +37,17 @@ CRAWLER_ACCOUNT_IDENTITY=true
 CRAWLER_TOTAL_REWARD_HISTORY=true
 CRAWLER_COUNCIL_ENABLED=true
 LOG_LEVEL='debug'
-  ```
+```
 
-  Then just start the server with
-
-  
+Then just start the server with
 
 ``` 
-  npm start
-  ```
+npm start
+```
 
   It uses nodemon for livereloading ✌️
+
+**IMPORTANT NOTE:** When creating the database for the first time, it would might take around 30-45 minutes for all data endpoints to start functioning.
 
   ## Codebase Guide:
 
