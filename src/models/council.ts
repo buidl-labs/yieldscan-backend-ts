@@ -4,6 +4,7 @@ const Council = new mongoose.Schema(
   {
     accountId: String,
     stake: Number,
+    isRunnersUp: Boolean,
     isPrime: Boolean,
     totalBalance: Number,
     backersInfo: [
