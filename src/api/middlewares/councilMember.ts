@@ -93,6 +93,7 @@ const councilMember = async (req, res, next) => {
         accountId: x.accountId,
         backing: backing,
         totalBalance: totalBalance,
+        isRunnersUp: x.isRunnersUp,
         backersInfo: backersInfo,
         additionalInfo: additionalInfo[0],
         socialInfo: socialInfo[0],
