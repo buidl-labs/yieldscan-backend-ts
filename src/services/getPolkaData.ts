@@ -40,7 +40,7 @@ export default class GetPolkaData {
     const provider = new WsProvider(this.config.wsProviderUrl);
     provider.on('error', async () => {
       Logger.error('Error: API crashed');
-      await provider.dissconnect();
+      await provider.disconnect();
       process.exit(1);
     });
     const api = await ApiPromise.create({ provider });
