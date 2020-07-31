@@ -49,8 +49,8 @@ const validatorProfile = async (req, res, next) => {
     data.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
-      x.ownStake = !x.isWaiting ? x.ownStake / Math.pow(10, 12) : null;
-      x.othersStake = !x.isWaiting ? x.nominators.reduce((a, b) => a + b.stake, 0) / Math.pow(10, 12) : null;
+      x.ownStake = x.ownStake / Math.pow(10, 12);
+      x.othersStake = x.totalStake - x.ownStake;
       x.numOfNominators = x.nominators.length;
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
@@ -58,12 +58,13 @@ const validatorProfile = async (req, res, next) => {
 
     const stakingInfo = data.map((x) => {
       const nominatorsInfo = x.nominators.map((y) => {
-        y.stake = !x.isWaiting ? y.stake / Math.pow(10, 12) : null;
+        y.stake = x.isElected ? y.stake / Math.pow(10, 12) : null;
         const name = x.nomInfo.filter((z) => y.nomId == z.stashId);
         return { nomId: y.nomId, stake: y.stake, name: name[0] !== undefined ? name[0].display : null };
       });
       return {
-        ownStake: !x.isWaiting ? x.ownStake : null,
+        ownStake: x.ownStake,
+        othersStake: x.othersStake,
         totalStake: x.totalStake,
         isElected: x.isElected,
         isNextElected: x.isNextElected,
