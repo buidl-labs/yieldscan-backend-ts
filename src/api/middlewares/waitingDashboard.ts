@@ -37,8 +37,8 @@ const waitingDashboard = async (req, res, next) => {
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
-      //   x.ownStake = x.ownStake / Math.pow(10, 12);
-      //   x.othersStake = x.nominators.reduce((a, b) => a + b.stake, 0) / Math.pow(10, 12);
+      x.ownStake = x.ownStake / Math.pow(10, 12);
+      x.othersStake = x.totalStake - x.ownStake;
       x.numOfNominators = x.nominators.length;
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
@@ -47,7 +47,9 @@ const waitingDashboard = async (req, res, next) => {
     const result = sortedData.map(
       ({
         stashId,
-        commission, // othersStake, // ownStake,
+        commission,
+        othersStake,
+        ownStake,
         totalStake,
         estimatedPoolReward,
         numOfNominators,
@@ -57,8 +59,8 @@ const waitingDashboard = async (req, res, next) => {
       }) => ({
         stashId,
         commission,
-        // ownStake,
-        // othersStake,
+        othersStake,
+        ownStake,
         totalStake,
         estimatedPoolReward,
         numOfNominators,
