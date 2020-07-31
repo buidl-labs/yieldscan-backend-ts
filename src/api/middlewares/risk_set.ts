@@ -39,6 +39,7 @@ const risk_set = async (req, res, next) => {
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.numOfNominators = x.nominators.length;
       x.ownStake = x.ownStake / Math.pow(10, 12);
+      x.othersStake = x.othersStake / Math.pow(10, 12);
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
@@ -54,6 +55,7 @@ const risk_set = async (req, res, next) => {
         riskScore,
         name,
         ownStake,
+        othersStake,
       }) => ({
         stashId,
         commission,
@@ -64,6 +66,7 @@ const risk_set = async (req, res, next) => {
         riskScore,
         name,
         ownStake,
+        othersStake,
       }),
     );
 
