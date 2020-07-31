@@ -38,8 +38,8 @@ const risk_set = async (req, res, next) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.numOfNominators = x.nominators.length;
-      x.ownStake = x.ownStake / Math.pow(10, 12);
-      x.othersStake = x.othersStake / Math.pow(10, 12);
+      x.ownStake = x.isElected ? x.ownStake / Math.pow(10, 12) : null;
+      x.othersStake = x.isElected ? x.nominators.reduce((a, b) => a + b.stake, 0) / Math.pow(10, 12) : null;
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
