@@ -38,12 +38,17 @@ export default class GetPolkaData {
 
   async getPolkadotAPI() {
     const provider = new WsProvider(this.config.wsProviderUrl);
-    provider.on('error', async () => {
+    const api = await ApiPromise.create({ provider });
+    api.on('error', async () => {
       Logger.error('Error: API crashed');
-      await provider.disconnect();
+      await api.disconnect();
       process.exit(1);
     });
-    const api = await ApiPromise.create({ provider });
+    api.on('disconnected', async () => {
+      Logger.error('API has been disconnected from the endpoint');
+      // await api.disconnect();
+      process.exit(1);
+    });
     try {
       await api.isReady;
       Logger.info('API is ready!');
