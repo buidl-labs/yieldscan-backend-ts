@@ -43,7 +43,7 @@ export default {
   api: {
     prefix: '/api',
   },
-  wsProviderUrl: process.env.WS_PROVIDER_URL || 'wss://kusama-rpc.polkadot.io',
+  wsProviderUrl: process.env.WS_PROVIDER_URL,
 
   crawlers: [
     {
