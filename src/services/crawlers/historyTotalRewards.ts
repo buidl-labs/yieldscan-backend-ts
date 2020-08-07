@@ -56,7 +56,7 @@ module.exports = {
     // Logger.debug(lastIndexDB);
     const historyDepth = await api.query.staking.historyDepth();
     const currentEra = await api.query.staking.currentEra();
-    const lastAvailableEra = currentEra - historyDepth;
+    const lastAvailableEra = Math.max(1, currentEra - historyDepth);
     // Logger.debug(lastAvailableEra);
 
     // check whether there is any previous data available inside the DB
