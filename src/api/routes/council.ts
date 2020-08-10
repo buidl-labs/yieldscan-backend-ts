@@ -8,7 +8,7 @@ const route = Router();
 // const corsOptions = { origin: config.domain };
 // cors(corsOptions) // add this after '/:id/update',
 
-export default (app: Router) => {
+export default (app: Router): void => {
   // Register our endpoint for this route-apis
   app.use('/council', route);
 
