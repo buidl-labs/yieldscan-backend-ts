@@ -89,6 +89,29 @@ const councilMember = async (req, res, next) => {
               };
             })
           : [{}];
+
+      const transparencyScores =
+        data[0].memberIdentity[0] !== undefined
+          ? data[0].memberIdentity.map((x) => {
+              const nameScore = x.display !== null ? 20 : 0;
+              const emailScore = x.email !== null ? 50 : 0;
+              const legalScore = x.legal !== null ? 100 : 0;
+              const riotScore = x.riot !== null ? 50 : 0;
+              const twitterScore = x.twitter !== null ? 40 : 0;
+              const webScore = x.web !== null ? 70 : 0;
+              const totalScore = nameScore + emailScore + legalScore + riotScore + twitterScore + webScore;
+              return {
+                name: nameScore,
+                email: emailScore,
+                legal: legalScore,
+                riot: riotScore,
+                twitter: twitterScore,
+                web: webScore,
+                total: totalScore !== 330 ? totalScore : 400,
+              };
+            })
+          : [{}];
+
       return {
         accountId: x.accountId,
         backing: backing,
@@ -97,6 +120,7 @@ const councilMember = async (req, res, next) => {
         backersInfo: backersInfo,
         additionalInfo: additionalInfo[0],
         socialInfo: socialInfo[0],
+        transparencyScores: transparencyScores[0],
       };
     });
 
