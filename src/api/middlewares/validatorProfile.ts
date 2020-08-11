@@ -159,7 +159,7 @@ const validatorProfile = async (req, res, next) => {
         socialInfo: socialInfo[0],
         additionalInfo: additionalInfo[0],
         linkedValidators: linkedValidators,
-        transparencyScores: transparencyScores,
+        transparencyScores: transparencyScores[0],
       })
       .status(200);
   } catch (e) {
