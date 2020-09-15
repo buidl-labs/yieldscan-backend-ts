@@ -51,12 +51,13 @@ const top_validator = async (req, res, next) => {
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.estimatedPoolReward = ((x.eraPoints / x.totalEraPoints) * eraTotalReward) / Math.pow(10, 12);
     });
-    const result = sortedData.map(({ stashId, commission, totalStake, estimatedPoolReward, info }) => ({
+    const result = sortedData.map(({ stashId, commission, totalStake, estimatedPoolReward, info, eraIndex }) => ({
       stashId,
       commission,
       totalStake,
       estimatedPoolReward,
       info,
+      eraIndex,
     }));
     return res.status(200).json(result);
   } catch (e) {
