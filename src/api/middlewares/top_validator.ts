@@ -47,7 +47,7 @@ const top_validator = async (req, res, next) => {
     }
 
     sortedData.map((x) => {
-      x.commission = x.commission / Math.pow(10, 9);
+      x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.estimatedPoolReward = ((x.eraPoints / x.totalEraPoints) * eraTotalReward) / Math.pow(10, 12);
     });
