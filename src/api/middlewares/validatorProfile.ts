@@ -109,28 +109,6 @@ const validatorProfile = async (req, res, next) => {
           })
         : [{}];
 
-    const transparencyScores =
-      data[0].info[0] !== undefined
-        ? data[0].info.map((x) => {
-            const nameScore = x.display !== null ? 20 : 0;
-            const emailScore = x.email !== null ? 50 : 0;
-            const legalScore = x.legal !== null ? 100 : 0;
-            const riotScore = x.riot !== null ? 50 : 0;
-            const twitterScore = x.twitter !== null ? 40 : 0;
-            const webScore = x.web !== null ? 70 : 0;
-            const totalScore = nameScore + emailScore + legalScore + riotScore + twitterScore + webScore;
-            return {
-              name: nameScore,
-              email: emailScore,
-              legal: legalScore,
-              riot: riotScore,
-              twitter: twitterScore,
-              web: webScore,
-              total: totalScore !== 330 ? totalScore : 400,
-            };
-          })
-        : [{}];
-
     const additionalInfo =
       data[0].additionalInfo[0] !== (undefined || null)
         ? data[0].additionalInfo.map((x) => {
@@ -159,7 +137,6 @@ const validatorProfile = async (req, res, next) => {
         socialInfo: socialInfo[0],
         additionalInfo: additionalInfo[0],
         linkedValidators: linkedValidators,
-        transparencyScores: transparencyScores,
       })
       .status(200);
   } catch (e) {
