@@ -9,7 +9,6 @@ import updateProfile from './updateProfile';
 import councilMember from './councilMember';
 import councilMembers from './councilMembers';
 import updateCouncilProfile from './updateCouncilProfile';
-import validatorsInfo from './validatorsInfo';
 
 export default {
   max_set,
@@ -23,5 +22,4 @@ export default {
   councilMember,
   councilMembers,
   updateCouncilProfile,
-  validatorsInfo,
 };

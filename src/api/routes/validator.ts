@@ -13,7 +13,6 @@ export default (app: Router) => {
   // Register our endpoint for this route-apis
   app.use('/validator', route);
 
-  route.get('/multi', middlewares.validatorsInfo);
   route.get('/:id', middlewares.validatorProfile);
 
   route.put(
