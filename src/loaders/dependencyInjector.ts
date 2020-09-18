@@ -1,9 +1,9 @@
 import { Container } from 'typedi';
 import LoggerInstance from './logger';
 
-export default ({ models }: { mongoConnection; models: { name: string; model }[] }): void => {
+export default ({ models }: { mongoConnection; models: { name: string; model }[] }) => {
   try {
-    models.forEach((m) => {
+    models.forEach(m => {
       Container.set(m.name, m.model);
     });
 

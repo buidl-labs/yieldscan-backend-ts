@@ -6,7 +6,7 @@ import validator from './routes/validator';
 import council from './routes/council';
 
 // guaranteed to get dependencies
-export default (): Router => {
+export default () => {
   const app = Router();
 
   /**

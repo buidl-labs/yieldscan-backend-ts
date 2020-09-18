@@ -9,7 +9,7 @@ const route = Router();
 // const corsOptions = { origin: config.domain };
 // cors(corsOptions) // add this after '/:id/update',
 
-export default (app: Router): void => {
+export default (app: Router) => {
   // Register our endpoint for this route-apis
   app.use('/validator', route);
 
