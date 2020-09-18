@@ -10,7 +10,7 @@ const nominatorsDashboard = async (req, res, next) => {
     const sortedData = await ActiveNominators.aggregate([
       {
         $match: {
-          'validatorsInfo.isElected': true,
+          'validatorsInfo.isWaiting': false,
         },
       },
       // removed/commented lookup for accountIdentity because it was reducing performance for

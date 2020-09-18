@@ -38,7 +38,7 @@ const validatorsDashboard = async (req, res, next) => {
       x.commission = x.commission / Math.pow(10, 7);
       x.totalStake = x.totalStake / Math.pow(10, 12);
       x.ownStake = x.ownStake / Math.pow(10, 12);
-      x.othersStake = x.totalStake - x.ownStake;
+      x.othersStake = x.nominators.reduce((a, b) => a + b.stake, 0) / Math.pow(10, 12);
       x.numOfNominators = x.nominators.length;
       x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
