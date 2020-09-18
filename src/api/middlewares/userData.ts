@@ -41,7 +41,7 @@ const userData = async (req, res, next) => {
     const nomName = data[0].nomInfo[0] !== undefined ? data[0].nomInfo[0].display : null;
     const totalRewards = data[0].validatorsInfo.reduce((a, b) => a + b.estimatedReward, 0) / Math.pow(10, 12);
     const totalAmountStaked =
-      data[0].validatorsInfo.filter((x) => x.isElected).reduce((a, b) => a + b.nomStake, 0) / Math.pow(10, 12);
+      data[0].validatorsInfo.filter((x) => !x.isWaiting).reduce((a, b) => a + b.nomStake, 0) / Math.pow(10, 12);
     const validatorsInfo = data[0].validatorsInfo.map((x) => {
       const name = data[0].info.filter((valId) => valId.stashId == x.stashId);
       return {
@@ -51,7 +51,7 @@ const userData = async (req, res, next) => {
         isWaiting: x.isWaiting,
         totalStake: x.totalStake / Math.pow(10, 12),
         estimatedPoolReward: x.estimatedPoolReward / Math.pow(10, 12),
-        estimatedReward: x.isElected ? x.estimatedReward / Math.pow(10, 12) : null,
+        estimatedReward: !x.isWaiting ? x.estimatedReward / Math.pow(10, 12) : null,
         commission: x.commission / Math.pow(10, 7),
         nomStake: x.nomStake / Math.pow(10, 12),
         claimedRewardEras: x.claimedRewards,
