@@ -10,7 +10,8 @@ import councilMember from './councilMember';
 import councilMembers from './councilMembers';
 import updateCouncilProfile from './updateCouncilProfile';
 import validatorsInfo from './validatorsInfo';
-
+import top_validator from './top_validator';
+import top_nominator from './top_nominator';
 export default {
   max_set,
   risk_set,
@@ -24,4 +25,6 @@ export default {
   councilMembers,
   updateCouncilProfile,
   validatorsInfo,
+  top_validator,
+  top_nominator,
 };
