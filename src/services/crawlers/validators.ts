@@ -65,10 +65,10 @@ module.exports = {
       const accountId = x.accountId.toString();
       const controllerId = x.controllerId.toString();
       const commission = parseInt(x.validatorPrefs.commission);
-      const totalStake = parseInt(x.exposure.total) !== 0
+      const totalStake = sessionValidators.includes(stashId)
         ? parseInt(x.exposure.total)
         : parseInt(x.stakingLedger.total);
-      const ownStake = parseInt(x.exposure.total) !== 0 ? parseInt(x.exposure.own) : parseInt(x.stakingLedger.total);
+      const ownStake = sessionValidators.includes(stashId) ? parseInt(x.exposure.own) : null;
       const claimedRewards = x.stakingLedger.claimedRewards.map((era) => parseInt(era));
       const nominators = sessionValidators.includes(stashId)
         ? x.exposure.others.map((y) => {
