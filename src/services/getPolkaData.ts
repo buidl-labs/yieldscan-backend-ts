@@ -46,7 +46,7 @@ export default class GetPolkaData {
     });
     api.on('disconnected', async () => {
       Logger.error('API has been disconnected from the endpoint');
-      // await api.disconnect();
+      await api.disconnect();
       process.exit(1);
     });
     try {
