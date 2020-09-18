@@ -8,7 +8,7 @@ const max_set = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
     const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
-    const sortedData = await Validators.find({ isElected: true }).sort({
+    const sortedData = await Validators.find({ isNextElected: true }).sort({
       rewardsPer100KSM: -1,
     });
 
