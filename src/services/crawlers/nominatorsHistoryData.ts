@@ -18,6 +18,20 @@ module.exports = {
     return;
   },
 
+  getSlashes: async function (api, pointsHistory) {
+    const slashes = {};
+    for (let i = 0; i < pointsHistory.length; i++) {
+      const individuals = Object.keys(pointsHistory[i].erasRewardPoints.individual).filter(
+        (x) => !Object.keys(slashes).includes(x),
+      );
+      const slashInfo = await Promise.all(individuals.map((val) => api.derive.staking.ownSlashes(val)));
+      individuals.map((x, index) => {
+        slashes[x] = slashInfo[index];
+      });
+    }
+    return slashes;
+  },
+
   getEraIndexes: async function (api) {
     const Logger = Container.get('logger');
     const NominatorHistory = Container.get('NominatorHistory') as mongoose.Model<INominatorHistory & mongoose.Document>;
