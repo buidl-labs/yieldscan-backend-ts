@@ -23,7 +23,7 @@
   "dependencies": {
     "@polkadot/api": "^1.34.0-beta.12",
     "body-parser": "^1.19.0",
-    "celebrate": "^12.1.1",
+    "celebrate": "^12.2.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "errorhandler": "^1.5.1",
