@@ -62,8 +62,6 @@ module.exports = {
     const pointsHistory = eraIndex.map((i, index) => {
       return { eraIndex: i, erasRewardPoints: erasRewardPointsArr[index].toJSON() };
     });
-    Logger.info('waiting 5s');
-    await wait(5000);
 
     const slashes = await module.exports.getSlashes(api, pointsHistory);
 
@@ -79,11 +77,18 @@ module.exports = {
           api.query.staking.erasStakers(pointsHistory[i].eraIndex, x.toString()),
         ),
       );
+
+      Logger.info('waiting 5s');
+      await wait(5000);
+
       valPrefs[pointsHistory[i].eraIndex] = await Promise.all(
         Object.keys(pointsHistory[i].erasRewardPoints.individual).map((x) =>
           api.query.staking.erasValidatorPrefs(pointsHistory[i].eraIndex, x.toString()),
         ),
       );
+
+      Logger.info('waiting 5s');
+      await wait(5000);
 
       Object.keys(pointsHistory[i].erasRewardPoints.individual).forEach((y, index) => {
         //
