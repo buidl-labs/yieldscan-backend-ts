@@ -11,7 +11,7 @@ module.exports = {
     const eraIndex = await module.exports.getEraIndexes(api);
     // Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
-      await module.exports.storeValidatorHistory(api, eraIndex);
+      await module.exports.storeValidatorHistory(api, eraIndex.slice(Math.max(eraIndex.length - 2, 0)));
     }
     Logger.info('stop historyData');
     return;
