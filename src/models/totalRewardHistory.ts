@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { ITotalRewardHistory } from '../interfaces/ITotalRewardHistory';
 const TotalRewardHistory = new mongoose.Schema(
   {
     eraIndex: Number,
@@ -7,4 +6,4 @@ const TotalRewardHistory = new mongoose.Schema(
   },
   { timestamps: true },
 );
-export default mongoose.model<ITotalRewardHistory & mongoose.Document>('totalRewardHistory', TotalRewardHistory);
+export default TotalRewardHistory;

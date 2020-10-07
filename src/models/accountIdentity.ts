@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { IAccountIdentity } from '../interfaces/IAccountIdentity';
 const AccountIdentity = new mongoose.Schema(
   {
     accountId: String,
@@ -13,4 +12,4 @@ const AccountIdentity = new mongoose.Schema(
   },
   { timestamps: true },
 );
-export default mongoose.model<IAccountIdentity & mongoose.Document>('accountIdentity', AccountIdentity);
+export default AccountIdentity;

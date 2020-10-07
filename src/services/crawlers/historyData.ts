@@ -33,7 +33,9 @@ module.exports = {
 
   getEraIndexes: async function (api) {
     // const Logger = Container.get('logger');
-    const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
+    const ValidatorHistory = Container.get('kusamaValidatorHistory') as mongoose.Model<
+      IValidatorHistory & mongoose.Document
+    >;
     const lastIndexDB = await ValidatorHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     // Logger.debug(lastIndexDB);
     const historyDepth = await api.query.staking.historyDepth();
@@ -144,7 +146,9 @@ module.exports = {
     }
 
     // insert data into DB
-    const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
+    const ValidatorHistory = Container.get('kusamaValidatorHistory') as mongoose.Model<
+      IValidatorHistory & mongoose.Document
+    >;
     try {
       await ValidatorHistory.insertMany(rewards);
     } catch (error) {

@@ -45,6 +45,17 @@ export default {
   },
   wsProviderUrl: process.env.WS_PROVIDER_URL,
 
+  networks: [
+    {
+      name: 'polkadot',
+      wsProviderUrl: process.env.WS_PROVIDER_URL,
+    },
+    {
+      name: 'kusama',
+      wsProviderUrl: process.env.WS_PROVIDER_URL,
+    },
+  ],
+
   crawlers: [
     {
       enabled: process.env.CRAWLER_ERA_POINTS_HISTORY_ENABLE,
