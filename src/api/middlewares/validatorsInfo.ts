@@ -1,13 +1,15 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { HttpError, getLinkedValidators } from '../../services/utils';
+import { HttpError } from '../../services/utils';
 
 const validatorsInfo = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    var stashIds = req.query.stashIds.split(',');
-    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const stashIds = req.query.stashIds.split(',');
+    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
 
     const data = await Validators.aggregate([
       {
@@ -17,14 +19,13 @@ const validatorsInfo = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'info',
         },
       },
     ]);
-
 
     if (data.length == 0) {
       Logger.error('🔥 No Data found: %o');
@@ -38,11 +39,11 @@ const validatorsInfo = async (req, res, next) => {
 
     data.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / Math.pow(10, 12);
-      x.ownStake = x.ownStake / Math.pow(10, 12);
+      x.totalStake = x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      x.ownStake = x.ownStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
       x.othersStake = x.totalStake - x.ownStake;
       x.numOfNominators = x.nominators.length;
-      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
+      x.estimatedPoolReward = x.estimatedPoolReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
 

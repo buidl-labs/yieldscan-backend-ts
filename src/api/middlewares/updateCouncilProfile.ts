@@ -6,12 +6,14 @@ import { ICouncil } from '../../interfaces/ICouncil';
 
 const updateCouncilProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
     const id = req.params.id;
     const data = req.body;
     const { vision, members } = data;
 
-    const Council = Container.get('Council') as mongoose.Model<ICouncil & mongoose.Document>;
+    const Council = Container.get(networkName + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
     const councilMember = await Council.aggregate([
       {
         $match: {
@@ -23,7 +25,9 @@ const updateCouncilProfile = async (req, res, next) => {
       throw new HttpError(404, 'No active council member id found for this id');
     }
 
-    const CouncilIdentity = Container.get('CouncilIdentity') as mongoose.Model<ICouncilIdentity & mongoose.Document>;
+    const CouncilIdentity = Container.get(networkName + 'CouncilIdentity') as mongoose.Model<
+      ICouncilIdentity & mongoose.Document
+    >;
 
     const updatedVision = vision !== undefined ? vision : null;
 
