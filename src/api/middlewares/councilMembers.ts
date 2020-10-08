@@ -4,14 +4,16 @@ import { HttpError } from '../../services/utils';
 import { ICouncil } from '../../interfaces/ICouncil';
 
 const councilMembers = async (req, res, next) => {
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   const Logger = Container.get('logger');
   try {
-    const Council = Container.get('Council') as mongoose.Model<ICouncil & mongoose.Document>;
+    const Council = Container.get(networkName + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
 
     const data = await Council.aggregate([
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'accountId',
           foreignField: 'accountId',
           as: 'memberIdentity',

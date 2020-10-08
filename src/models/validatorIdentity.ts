@@ -1,6 +1,4 @@
-import { IValidatorIdentity } from '../interfaces/IValidatorIdentity';
 import mongoose from 'mongoose';
-
 const ValidatorIdentity = new mongoose.Schema(
   {
     stashId: String,
@@ -11,4 +9,4 @@ const ValidatorIdentity = new mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model<IValidatorIdentity & mongoose.Document>('ValidatorIdentity', ValidatorIdentity);
+export default ValidatorIdentity;

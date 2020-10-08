@@ -1,7 +1,4 @@
 import mongoose from 'mongoose';
-
-import { IStakingInfo } from '../interfaces/IStakingInfo';
-
 const Validators = new mongoose.Schema(
   {
     stashId: String,
@@ -29,4 +26,4 @@ const Validators = new mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model<IStakingInfo & mongoose.Document>('Validators', Validators);
+export default Validators;
