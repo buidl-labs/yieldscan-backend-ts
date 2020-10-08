@@ -6,8 +6,10 @@ import { HttpError } from '../../services/utils';
 
 const max_set = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     const sortedData = await Validators.find({ isElected: true }).sort({
       rewardsPer100KSM: -1,
     });
@@ -19,8 +21,9 @@ const max_set = async (req, res, next) => {
 
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 9);
-      x.totalStake = x.totalStake / Math.pow(10, 12);
-      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
+      x.totalStake = networkName == 'kusama' ? x.totalStake / Math.pow(10, 12) : x.totalStake / Math.pow(10, 10);
+      x.estimatedPoolReward =
+        networkName == 'kusama' ? x.estimatedPoolReward / Math.pow(10, 12) : x.estimatedPoolReward / Math.pow(10, 10);
     });
     // console.log(sortedData);
     const result = sortedData.slice(0, 16).map(({ stashId, commission, totalStake, estimatedPoolReward }) => ({

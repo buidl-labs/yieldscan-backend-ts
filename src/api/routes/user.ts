@@ -4,7 +4,8 @@ const route = Router();
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/user', route);
+  app.use('/kusama/user', route);
+  app.use('/polkadot/user', route);
 
   route.get('/:id', middlewares.userData);
 };

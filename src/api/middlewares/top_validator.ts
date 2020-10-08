@@ -7,8 +7,10 @@ import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 
 const top_validator = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
+    const TotalRewardHistory = Container.get(networkName + 'TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
     const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(1);
@@ -16,7 +18,9 @@ const top_validator = async (req, res, next) => {
     const eraIndex = lastIndexDB[0].eraIndex;
     const eraTotalReward = lastIndexDB[0].eraTotalReward;
 
-    const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
+    const ValidatorHistory = Container.get(networkName + 'ValidatorHistory') as mongoose.Model<
+      IValidatorHistory & mongoose.Document
+    >;
     const sortedData = await ValidatorHistory.aggregate([
       {
         $match: {
@@ -33,7 +37,7 @@ const top_validator = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'info',
@@ -48,8 +52,10 @@ const top_validator = async (req, res, next) => {
 
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / Math.pow(10, 12);
-      x.estimatedPoolReward = ((x.eraPoints / x.totalEraPoints) * eraTotalReward) / Math.pow(10, 12);
+      x.totalStake = x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      x.estimatedPoolReward =
+        ((x.eraPoints / x.totalEraPoints) * eraTotalReward) /
+        (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
     });
     const result = sortedData.map(({ stashId, commission, totalStake, estimatedPoolReward, info, eraIndex }) => ({
       stashId,

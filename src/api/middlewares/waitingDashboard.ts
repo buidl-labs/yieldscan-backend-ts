@@ -5,8 +5,10 @@ import { HttpError } from '../../services/utils';
 
 const waitingDashboard = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
 
     const sortedData = await Validators.aggregate([
       {
@@ -16,7 +18,7 @@ const waitingDashboard = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'info',
@@ -36,11 +38,12 @@ const waitingDashboard = async (req, res, next) => {
 
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / Math.pow(10, 12);
-      x.ownStake = x.ownStake / Math.pow(10, 12);
+      x.totalStake = networkName == 'kusama' ? x.totalStake / Math.pow(10, 12) : x.totalStake / Math.pow(10, 10);
+      x.ownStake = networkName == 'kusama' ? x.ownStake / Math.pow(10, 12) : x.ownStake / Math.pow(10, 10);
       x.othersStake = x.totalStake - x.ownStake;
       x.numOfNominators = x.nominators.length;
-      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
+      x.estimatedPoolReward =
+        networkName == 'kusama' ? x.estimatedPoolReward / Math.pow(10, 12) : x.estimatedPoolReward / Math.pow(10, 10);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
 

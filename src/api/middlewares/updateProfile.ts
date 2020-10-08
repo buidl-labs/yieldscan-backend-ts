@@ -6,12 +6,14 @@ import { IStakingInfo } from '../../interfaces/IStakingInfo';
 
 const updateProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
     const id = req.params.id;
     const data = req.body;
     const { vision, members } = data;
 
-    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     const validator = await Validators.aggregate([
       {
         $match: {
@@ -23,7 +25,7 @@ const updateProfile = async (req, res, next) => {
       throw new HttpError(404, 'No validator id found for this id');
     }
 
-    const ValidatorIdentity = Container.get('ValidatorIdentity') as mongoose.Model<
+    const ValidatorIdentity = Container.get(networkName + 'ValidatorIdentity') as mongoose.Model<
       IValidatorIdentity & mongoose.Document
     >;
 

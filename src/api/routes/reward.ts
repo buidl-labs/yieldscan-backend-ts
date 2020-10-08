@@ -4,7 +4,8 @@ const route = Router();
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/rewards', route);
+  app.use('/kusama/rewards', route);
+  app.use('/polkadot/rewards', route);
 
   route.get('/max-set', middlewares.max_set);
   route.get('/risk-set', middlewares.risk_set);

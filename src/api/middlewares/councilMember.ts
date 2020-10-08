@@ -5,9 +5,11 @@ import { ICouncil } from '../../interfaces/ICouncil';
 
 const councilMember = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
     const id = req.params.id;
-    const Council = Container.get('Council') as mongoose.Model<ICouncil & mongoose.Document>;
+    const Council = Container.get(networkName + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
 
     const data = await Council.aggregate([
       {
@@ -17,7 +19,7 @@ const councilMember = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'accountId',
           foreignField: 'accountId',
           as: 'memberIdentity',
@@ -25,7 +27,7 @@ const councilMember = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'backersInfo.backer',
           foreignField: 'stashId',
           as: 'backersIdentity',
@@ -33,7 +35,7 @@ const councilMember = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'councilidentities',
+          from: networkName + 'councilidentities',
           localField: 'accountId',
           foreignField: 'accountId',
           as: 'additionalInfo',
@@ -47,10 +49,11 @@ const councilMember = async (req, res, next) => {
     }
 
     const result = data.map((x) => {
-      const totalBalance = x.totalBalance / Math.pow(10, 12);
-      const backing = x.stake / Math.pow(10, 12);
+      const totalBalance =
+        networkName == 'kusama' ? x.totalBalance / Math.pow(10, 12) : x.totalBalance / Math.pow(10, 10);
+      const backing = networkName == 'kusama' ? x.stake / Math.pow(10, 12) : x.stake / Math.pow(10, 10);
       const backersInfo = x.backersInfo.map((y) => {
-        const stake = y.stake / Math.pow(10, 12);
+        const stake = networkName == 'kusama' ? y.stake / Math.pow(10, 12) : y.stake / Math.pow(10, 10);
         const backerName = x.backersIdentity.filter((z) => z.accountId == y.backer);
         return {
           stake: stake,

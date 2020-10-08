@@ -5,9 +5,11 @@ import { HttpError, getLinkedValidators } from '../../services/utils';
 
 const validatorProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
     const id = req.params.id;
-    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
 
     const data = await Validators.aggregate([
       {
@@ -17,7 +19,7 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'info',
@@ -25,7 +27,7 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'nominators.nomId',
           foreignField: 'stashId',
           as: 'nomInfo',
@@ -33,7 +35,7 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'validatoridentities',
+          from: networkName + 'validatoridentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'additionalInfo',
@@ -48,17 +50,17 @@ const validatorProfile = async (req, res, next) => {
 
     data.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / Math.pow(10, 12);
-      x.ownStake = x.ownStake / Math.pow(10, 12);
+      x.totalStake = x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      x.ownStake = x.ownStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
       x.othersStake = x.totalStake - x.ownStake;
       x.numOfNominators = x.nominators.length;
-      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
+      x.estimatedPoolReward = x.estimatedPoolReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
 
     const stakingInfo = data.map((x) => {
       const nominatorsInfo = x.nominators.map((y) => {
-        y.stake = x.isElected ? y.stake / Math.pow(10, 12) : null;
+        y.stake = x.isElected ? y.stake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)) : null;
         const name = x.nomInfo.filter((z) => y.nomId == z.stashId);
         return { nomId: y.nomId, stake: y.stake, name: name[0] !== undefined ? name[0].display : null };
       });

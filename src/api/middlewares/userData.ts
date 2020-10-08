@@ -5,9 +5,13 @@ import { HttpError } from '../../services/utils';
 
 const userData = async (req, res, next) => {
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
+  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
     const id = req.params.id;
-    const ActiveNominators = Container.get('ActiveNominators') as mongoose.Model<IActiveNominators & mongoose.Document>;
+    const ActiveNominators = Container.get(networkName + 'ActiveNominators') as mongoose.Model<
+      IActiveNominators & mongoose.Document
+    >;
 
     const data = await ActiveNominators.aggregate([
       {
@@ -17,7 +21,7 @@ const userData = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'validatorsInfo.stashId',
           foreignField: 'stashId',
           as: 'info',
@@ -25,7 +29,7 @@ const userData = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: 'accountidentities',
+          from: networkName + 'accountidentities',
           localField: 'nomId',
           foreignField: 'accountId',
           as: 'nomInfo',
@@ -39,9 +43,12 @@ const userData = async (req, res, next) => {
     }
 
     const nomName = data[0].nomInfo[0] !== undefined ? data[0].nomInfo[0].display : null;
-    const totalRewards = data[0].validatorsInfo.reduce((a, b) => a + b.estimatedReward, 0) / Math.pow(10, 12);
+    const totalRewards =
+      data[0].validatorsInfo.reduce((a, b) => a + b.estimatedReward, 0) /
+      (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
     const totalAmountStaked =
-      data[0].validatorsInfo.filter((x) => x.isElected).reduce((a, b) => a + b.nomStake, 0) / Math.pow(10, 12);
+      data[0].validatorsInfo.filter((x) => x.isElected).reduce((a, b) => a + b.nomStake, 0) /
+      (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
     const validatorsInfo = data[0].validatorsInfo.map((x) => {
       const name = data[0].info.filter((valId) => valId.stashId == x.stashId);
       return {
@@ -49,11 +56,13 @@ const userData = async (req, res, next) => {
         riskScore: x.riskScore,
         isElected: x.isElected,
         isWaiting: x.isWaiting,
-        totalStake: x.totalStake / Math.pow(10, 12),
-        estimatedPoolReward: x.estimatedPoolReward / Math.pow(10, 12),
-        estimatedReward: x.isElected ? x.estimatedReward / Math.pow(10, 12) : null,
+        totalStake: x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)),
+        estimatedPoolReward: x.estimatedPoolReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)),
+        estimatedReward: x.isElected
+          ? x.estimatedReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10))
+          : null,
         commission: x.commission / Math.pow(10, 7),
-        nomStake: x.nomStake / Math.pow(10, 12),
+        nomStake: x.nomStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)),
         claimedRewardEras: x.claimedRewards,
         name: name[0] !== undefined ? name[0].display : null,
       };
