@@ -1,6 +1,4 @@
-import { ICouncilIdentity } from '../interfaces/ICouncilIdentity';
 import mongoose from 'mongoose';
-
 const CouncilIdentity = new mongoose.Schema(
   {
     accountId: String,
@@ -10,4 +8,4 @@ const CouncilIdentity = new mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model<ICouncilIdentity & mongoose.Document>('CouncilIdentity', CouncilIdentity);
+export default CouncilIdentity;

@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { IActiveNominators } from '../interfaces/IActiveNominators';
 const ActiveNominators = new mongoose.Schema(
   {
     nomId: String,
@@ -22,4 +21,4 @@ const ActiveNominators = new mongoose.Schema(
   },
   { timestamps: true },
 );
-export default mongoose.model<IActiveNominators & mongoose.Document>('activeNominators', ActiveNominators);
+export default ActiveNominators;

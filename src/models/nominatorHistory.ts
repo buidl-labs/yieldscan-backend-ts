@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { INominatorHistory } from '../interfaces/INominatorHistory';
 const NominatorHistory = new mongoose.Schema(
   {
     eraIndex: Number,
@@ -17,4 +16,4 @@ const NominatorHistory = new mongoose.Schema(
   },
   { timestamps: true },
 );
-export default mongoose.model<INominatorHistory & mongoose.Document>('nominatorHistory', NominatorHistory);
+export default NominatorHistory;
