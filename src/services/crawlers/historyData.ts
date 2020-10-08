@@ -5,13 +5,20 @@ import { wait } from '../utils';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 
 module.exports = {
-  start: async function (api) {
+  start: async function (api, networkName) {
     const Logger = Container.get('logger');
     Logger.info('start historyData');
-    const eraIndex = await module.exports.getEraIndexes(api);
+    const ValidatorHistory = Container.get(networkName + 'ValidatorHistory') as mongoose.Model<
+      IValidatorHistory & mongoose.Document
+    >;
+    const eraIndex = await module.exports.getEraIndexes(api, ValidatorHistory);
     // Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
-      await module.exports.storeValidatorHistory(api, eraIndex.slice(Math.max(eraIndex.length - 2, 0)));
+      await module.exports.storeValidatorHistory(
+        api,
+        eraIndex.slice(Math.max(eraIndex.length - 2, 0)),
+        ValidatorHistory,
+      );
     }
     Logger.info('stop historyData');
     return;
@@ -31,11 +38,8 @@ module.exports = {
     return slashes;
   },
 
-  getEraIndexes: async function (api) {
+  getEraIndexes: async function (api, ValidatorHistory) {
     // const Logger = Container.get('logger');
-    const ValidatorHistory = Container.get('kusamaValidatorHistory') as mongoose.Model<
-      IValidatorHistory & mongoose.Document
-    >;
     const lastIndexDB = await ValidatorHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     // Logger.debug(lastIndexDB);
     const historyDepth = await api.query.staking.historyDepth();
@@ -56,7 +60,7 @@ module.exports = {
     return eraIndex;
   },
 
-  storeValidatorHistory: async function (api, eraIndex) {
+  storeValidatorHistory: async function (api, eraIndex, ValidatorHistory) {
     const Logger = Container.get('logger');
     const erasRewardPointsArr = await Promise.all(eraIndex.map(async (i) => api.query.staking.erasRewardPoints(i)));
     // Logger.debug('erasRewardPointsArr');
@@ -146,9 +150,6 @@ module.exports = {
     }
 
     // insert data into DB
-    const ValidatorHistory = Container.get('kusamaValidatorHistory') as mongoose.Model<
-      IValidatorHistory & mongoose.Document
-    >;
     try {
       await ValidatorHistory.insertMany(rewards);
     } catch (error) {
