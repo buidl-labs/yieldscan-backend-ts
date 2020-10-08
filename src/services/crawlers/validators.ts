@@ -7,7 +7,7 @@ import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 
 module.exports = {
-  start: async function (api) {
+  start: async function (api, networkName) {
     const Logger = Container.get('logger');
     Logger.info('start validators');
 
@@ -42,11 +42,11 @@ module.exports = {
       allStashes,
     );
     // Logger.debug(stakingInfo);
-    stakingInfo = await module.exports.getEstimatedPoolReward(api, allStashes, stakingInfo);
+    stakingInfo = await module.exports.getEstimatedPoolReward(api, allStashes, stakingInfo, networkName);
     stakingInfo = await module.exports.getRiskScore(stakingInfo);
 
     // save next elected information
-    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     try {
       await Validators.deleteMany({});
       await Validators.insertMany(stakingInfo);
@@ -65,9 +65,8 @@ module.exports = {
       const accountId = x.accountId.toString();
       const controllerId = x.controllerId.toString();
       const commission = parseInt(x.validatorPrefs.commission);
-      const totalStake = parseInt(x.exposure.total) !== 0
-        ? parseInt(x.exposure.total)
-        : parseInt(x.stakingLedger.total);
+      const totalStake =
+        parseInt(x.exposure.total) !== 0 ? parseInt(x.exposure.total) : parseInt(x.stakingLedger.total);
       const ownStake = parseInt(x.exposure.total) !== 0 ? parseInt(x.exposure.own) : parseInt(x.stakingLedger.total);
       const claimedRewards = x.stakingLedger.claimedRewards.map((era) => parseInt(era));
       const nominators = sessionValidators.includes(stashId)
@@ -100,15 +99,17 @@ module.exports = {
     });
   },
 
-  getEstimatedPoolReward: async function (api, allStashes, stakingInfo: Array<IStakingInfo>) {
+  getEstimatedPoolReward: async function (api, allStashes, stakingInfo: Array<IStakingInfo>, networkName) {
     await wait(5000);
     // const Logger = Container.get('logger');
-    const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
+    const TotalRewardHistory = Container.get(networkName + 'TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
     const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     const lastIndexDBTotalReward = lastIndexDB[0].eraTotalReward;
-    const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
+    const ValidatorHistory = Container.get(networkName + 'ValidatorHistory') as mongoose.Model<
+      IValidatorHistory & mongoose.Document
+    >;
     const historyData = await ValidatorHistory.aggregate([
       {
         $match: { stashId: { $in: allStashes } },
@@ -148,7 +149,7 @@ module.exports = {
         const commission = x.commission / Math.pow(10, 9);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier
-          (poolReward - (commission * poolReward)) * 100 / (100 + totalStake);
+          ((poolReward - commission * poolReward) * 100) / (100 + totalStake);
       } else {
         x.estimatedPoolReward = requiredData[0].estimatedPoolReward;
         x.activeErasCount = requiredData[0].activeErasCount;
@@ -158,7 +159,7 @@ module.exports = {
         const commission = x.commission / Math.pow(10, 9);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier
-          (poolReward - (commission * poolReward)) * 100 / (100 + totalStake);
+          ((poolReward - commission * poolReward) * 100) / (100 + totalStake);
       }
     });
     // Logger.debug(stakingInfo);

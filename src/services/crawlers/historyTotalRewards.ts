@@ -5,10 +5,10 @@ import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import mongoose from 'mongoose';
 
 module.exports = {
-  start: async function (api) {
+  start: async function (api, networkName) {
     const Logger = Container.get('logger');
     Logger.info('start historyTotalRewads');
-    const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
+    const TotalRewardHistory = Container.get(networkName + 'TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
     const eraIndex = await module.exports.getEraIndexes(api, TotalRewardHistory);

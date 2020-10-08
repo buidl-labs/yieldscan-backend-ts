@@ -5,18 +5,17 @@ import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { INominatorHistory } from '../../interfaces/INominatorHistory';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
-import LoggerInstance from '../../loaders/logger';
 
 module.exports = {
-  start: async function (api) {
+  start: async function (api, networkName) {
     const Logger = Container.get('logger');
     Logger.info('start activeNominators');
-    const Validators = Container.get('Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     const validators = await Validators.find({});
 
     const nominatorsInfo = await module.exports.getNominatorsInfo(validators);
 
-    await module.exports.getDailyEarnings(nominatorsInfo);
+    await module.exports.getDailyEarnings(nominatorsInfo, networkName);
 
     Logger.info('stop activeNominators');
     return;
@@ -76,13 +75,15 @@ module.exports = {
     });
     return result;
   },
-  getDailyEarnings: async function (nominatorsInfo) {
+  getDailyEarnings: async function (nominatorsInfo, networkName) {
     const Logger = Container.get('logger');
-    const TotalRewardHistory = Container.get('TotalRewardHistory') as mongoose.Model<
+    const TotalRewardHistory = Container.get(networkName + 'TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
     const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(4);
-    const NominatorHistory = Container.get('NominatorHistory') as mongoose.Model<INominatorHistory & mongoose.Document>;
+    const NominatorHistory = Container.get(networkName + 'NominatorHistory') as mongoose.Model<
+      INominatorHistory & mongoose.Document
+    >;
     const eraIndexArr = lastIndexDB.map((x) => x.eraIndex);
     const previous4ErasData = await NominatorHistory.find({ eraIndex: { $in: eraIndexArr } });
     nominatorsInfo.map((x) => {
@@ -101,7 +102,9 @@ module.exports = {
       });
       x.dailyEarnings = earnings.reduce((a, b) => a + b, 0);
     });
-    const ActiveNominators = Container.get('ActiveNominators') as mongoose.Model<IActiveNominators & mongoose.Document>;
+    const ActiveNominators = Container.get(networkName + 'ActiveNominators') as mongoose.Model<
+      IActiveNominators & mongoose.Document
+    >;
 
     try {
       await ActiveNominators.deleteMany({});

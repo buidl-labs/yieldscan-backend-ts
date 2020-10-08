@@ -5,7 +5,7 @@ import { ICouncil } from '../../interfaces/ICouncil';
 import { wait } from '../utils';
 
 module.exports = {
-  start: async function (api) {
+  start: async function (api, networkName) {
     const Logger = Container.get('logger');
     Logger.info('start council');
     const members = await api.derive.elections.info();
@@ -64,7 +64,7 @@ module.exports = {
 
     const result = membersWithBackers.concat(runnersUpWithBackers);
 
-    const Council = Container.get('Council') as mongoose.Model<ICouncil & mongoose.Document>;
+    const Council = Container.get(networkName + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
     try {
       await Council.deleteMany({});
       await wait(2000);

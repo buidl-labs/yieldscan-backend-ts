@@ -1,26 +1,27 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 
-import { wait } from '../utils';
 import { INominatorHistory } from '../../interfaces/INominatorHistory';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 
 module.exports = {
-  start: async function (api) {
+  start: async function (api, networkName) {
     const Logger = Container.get('logger');
     Logger.info('start nominatorHistoryData');
-    const eraIndex = await module.exports.getEraIndexes(api);
+    const NominatorHistory = Container.get(networkName + 'NominatorHistory') as mongoose.Model<
+      INominatorHistory & mongoose.Document
+    >;
+    const eraIndex = await module.exports.getEraIndexes(api, NominatorHistory);
     // Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
-      await module.exports.storeNominatorHistory(api, eraIndex);
+      await module.exports.storeNominatorHistory(api, eraIndex, networkName, NominatorHistory);
     }
     Logger.info('stop historyData');
     return;
   },
 
-  getEraIndexes: async function (api) {
-    const Logger = Container.get('logger');
-    const NominatorHistory = Container.get('NominatorHistory') as mongoose.Model<INominatorHistory & mongoose.Document>;
+  getEraIndexes: async function (api, NominatorHistory) {
+    // const Logger = Container.get('logger');
     const lastIndexDB = await NominatorHistory.find({}).sort({ eraIndex: -1 }).limit(1);
     // Logger.debug(lastIndexDB);
     const historyDepth = await api.query.staking.historyDepth();
@@ -41,9 +42,11 @@ module.exports = {
     return eraIndex;
   },
 
-  storeNominatorHistory: async function (api, eraIndex) {
+  storeNominatorHistory: async function (api, eraIndex, networkName, NominatorHistory) {
     const Logger = Container.get('logger');
-    const ValidatorHistory = Container.get('ValidatorHistory') as mongoose.Model<IValidatorHistory & mongoose.Document>;
+    const ValidatorHistory = Container.get(networkName + 'ValidatorHistory') as mongoose.Model<
+      IValidatorHistory & mongoose.Document
+    >;
     const data = await ValidatorHistory.find({ eraIndex: { $in: eraIndex } }).lean();
     const historyData = [];
     data.map((x) => {
@@ -79,7 +82,6 @@ module.exports = {
         }
       });
     });
-    const NominatorHistory = Container.get('NominatorHistory') as mongoose.Model<INominatorHistory & mongoose.Document>;
     try {
       await NominatorHistory.insertMany(historyData);
     } catch (err) {

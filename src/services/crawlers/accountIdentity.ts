@@ -5,7 +5,7 @@ import { wait } from '../utils';
 import { IAccountIdentity } from '../../interfaces/IAccountIdentity';
 
 module.exports = {
-  start: async function (api) {
+  start: async function (api, networkName) {
     const Logger = Container.get('logger');
     Logger.info('start accountIdentity');
 
@@ -46,7 +46,9 @@ module.exports = {
 
     // update info
 
-    const AccountIdentity = Container.get('AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
+    const AccountIdentity = Container.get(networkName + 'AccountIdentity') as mongoose.Model<
+      IAccountIdentity & mongoose.Document
+    >;
 
     // todo replace delete insert logic with a more suitable process like update/updateMany
     try {
