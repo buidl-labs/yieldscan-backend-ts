@@ -12,8 +12,8 @@ import { Container } from 'typedi';
 import GetPolkaData from './services/getPolkaData';
 
 async function startCrawlers() {
-  Logger.info('starting crawlers');
   await loaders();
+  Logger.info('starting crawlers');
   const getPolkaDataInstance = Container.get(GetPolkaData);
   await getPolkaDataInstance.runCrawlers();
 }
