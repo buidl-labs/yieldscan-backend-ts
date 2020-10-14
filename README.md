@@ -28,7 +28,7 @@ cd yieldscan-backend-ts
 
 ``` 
 MONGODB_URI=your mongo url
-WS_PROVIDER_URL='wss://kusama-rpc.polkadot.io'    //for Kusama
+WS_PROVIDER_URL='wss://kusama-rpc.polkadot.io'    #for Kusama
 CRAWLER_ERA_POINTS_HISTORY_ENABLE=true
 CRAWLER_NOMINATOR_HISTORY_ENABLE=true
 CRAWLER_VALIDATORS_ENABLED=true
