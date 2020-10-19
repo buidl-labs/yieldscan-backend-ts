@@ -71,18 +71,18 @@ module.exports = {
       const claimedRewards = x.stakingLedger.claimedRewards.map((era) => parseInt(era));
       const nominators = sessionValidators.includes(stashId)
         ? x.exposure.others.map((y) => {
-            const nomId = y.who.toString();
-            const stake = parseInt(y.value);
-            return {
-              nomId: nomId,
-              stake: stake,
-            };
-          })
+          const nomId = y.who.toString();
+          const stake = parseInt(y.value);
+          return {
+            nomId: nomId,
+            stake: stake,
+          };
+        })
         : nominations
-            .filter((y) => y.targets.includes(stashId))
-            .map((z) => {
-              return { nomId: z.nomId };
-            });
+          .filter((y) => y.targets.includes(stashId))
+          .map((z) => {
+            return { nomId: z.nomId };
+          });
       return {
         stashId: stashId,
         controllerId: controllerId,
@@ -128,6 +128,7 @@ module.exports = {
 
     // calculation start Estimated Pool Reward
     // get avg era points fraction
+    const decimalPlaces = networkName == 'kusama' ? 12 : 10;
     historyData.map((x) => {
       x.avgEraPointsFraction =
         x.erPointsFractionArr.length !== 0
@@ -144,8 +145,8 @@ module.exports = {
         x.estimatedPoolReward = historyData.reduce((a, b) => a + b.avgEraPointsFraction, 0) / historyData.length;
         x.activeErasCount = 0;
         x.totalSlashCount = 0;
-        const poolReward = x.estimatedPoolReward / Math.pow(10, 12);
-        const totalStake = x.totalStake / Math.pow(10, 12);
+        const poolReward = x.estimatedPoolReward / Math.pow(10, decimalPlaces);
+        const totalStake = x.totalStake / Math.pow(10, decimalPlaces);
         const commission = x.commission / Math.pow(10, 9);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier
@@ -154,8 +155,8 @@ module.exports = {
         x.estimatedPoolReward = requiredData[0].estimatedPoolReward;
         x.activeErasCount = requiredData[0].activeErasCount;
         x.totalSlashCount = requiredData[0].totalSlashCount;
-        const poolReward = x.estimatedPoolReward / Math.pow(10, 12);
-        const totalStake = x.totalStake / Math.pow(10, 12);
+        const poolReward = x.estimatedPoolReward / Math.pow(10, decimalPlaces);
+        const totalStake = x.totalStake / Math.pow(10, decimalPlaces);
         const commission = x.commission / Math.pow(10, 9);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier

@@ -5,6 +5,7 @@ import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { INominatorHistory } from '../../interfaces/INominatorHistory';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
+import { wait } from '../utils';
 
 module.exports = {
   start: async function (api, networkName) {
@@ -13,7 +14,14 @@ module.exports = {
     const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
     const validators = await Validators.find({});
 
+    // console.log(JSON.stringify(validators, null, 2));
+
     const nominatorsInfo = await module.exports.getNominatorsInfo(validators);
+
+    Logger.info('waiting 5 secs');
+    await wait(5000);
+
+    // console.log(JSON.stringify(nominatorsInfo, null, 2));
 
     await module.exports.getDailyEarnings(nominatorsInfo, networkName);
 
@@ -26,7 +34,7 @@ module.exports = {
     validators.map((x) => {
       const estimatedPoolReward = x.estimatedPoolReward;
       const riskScore = x.riskScore;
-      x.nominators.forEach((y) => {
+      x.nominators.map((y) => {
         if (result.some((element) => element.nomId == y.nomId)) {
           result.map((z) => {
             if (z.nomId == y.nomId) {
@@ -43,7 +51,7 @@ module.exports = {
                 estimatedPoolReward: estimatedPoolReward,
                 estimatedReward: x.isElected
                   ? ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
-                    x.totalStake
+                  x.totalStake
                   : null,
               });
             }
@@ -65,7 +73,7 @@ module.exports = {
                 estimatedPoolReward: estimatedPoolReward,
                 estimatedReward: x.isElected
                   ? ((estimatedPoolReward - (x.commission / Math.pow(10, 9)) * estimatedPoolReward) * y.stake) /
-                    x.totalStake
+                  x.totalStake
                   : null,
               },
             ],
@@ -85,6 +93,7 @@ module.exports = {
       INominatorHistory & mongoose.Document
     >;
     const eraIndexArr = lastIndexDB.map((x) => x.eraIndex);
+    const decimalPlaces = networkName == 'kusama' ? 12 : 10;
     const previous4ErasData = await NominatorHistory.find({ eraIndex: { $in: eraIndexArr } });
     nominatorsInfo.map((x) => {
       const individualHistory = previous4ErasData.filter((y) => y.nomId == x.nomId);
@@ -92,9 +101,9 @@ module.exports = {
         const totalReward = lastIndexDB.filter((z) => z.eraIndex == y.eraIndex);
         const result = y.validatorsInfo.reduce((a, b) => {
           const commission = b.commission / Math.pow(10, 9);
-          const totalStake = b.totalStake / Math.pow(10, 12);
-          const nomStake = b.nomStake / Math.pow(10, 12);
-          const poolReward = ((totalReward[0].eraTotalReward / Math.pow(10, 12)) * b.eraPoints) / b.totalEraPoints;
+          const totalStake = b.totalStake / Math.pow(10, decimalPlaces);
+          const nomStake = b.nomStake / Math.pow(10, decimalPlaces);
+          const poolReward = ((totalReward[0].eraTotalReward / Math.pow(10, decimalPlaces)) * b.eraPoints) / b.totalEraPoints;
           const reward = (poolReward - commission * poolReward) * (nomStake / totalStake);
           return a + reward;
         }, 0);

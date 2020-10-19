@@ -11,9 +11,8 @@ export default class GetPolkaData {
   @Inject('config')
   config;
   async runCrawlers() {
-    const crawlers = this.config.crawlers.filter((crawler) => crawler.enabled == 'true');
+    const crawlers = this.config.crawlers;
     const networks = this.config.networks;
-    console.log(networks);
 
     await this.startMultipleCrawlers(networks, crawlers);
     // crawlers.forEach((crawler) => crawler.module.start(api));
@@ -40,35 +39,58 @@ export default class GetPolkaData {
   }
 
   async start(crawlers, network) {
-    const api = await this.getPolkadotAPI(network.wsProviderUrl);
-    for (let i = 0; i < crawlers.length; i++) {
-      await crawlers[i].module.start(api, network.name);
-      await wait(5000);
-    }
+    const runApiCrawlers = async (apiCrawlers, networkInfo) => {
+      let isError = true;
+      const getPolkadotAPI = async (wsProviderUrl) => {
+        const provider = new WsProvider(wsProviderUrl, false);
+        await provider.connect();
+        const api = await ApiPromise.create({ provider });
+        api.on('error', async () => {
+          Logger.error('Error: API crashed');
+          await api.disconnect();
+          process.exit(1);
+        });
+        api.on('disconnected', async () => {
+          Logger.info('API has been disconnected from the endpoint');
+          // await api.disconnect();
+          if (isError) {
+            process.exit(1);
+          }
+        });
+        try {
+          await api.isReady;
+          Logger.info('API is ready!');
+        } catch (error) {
+          Logger.error('Error', error);
+        }
+        return [api, provider];
+      };
+      const enabledCrwlers = apiCrawlers.filter((crawler) => crawler.enabled == 'true');
+      const [api, provider] = await getPolkadotAPI(networkInfo.wsProviderUrl);
+      for (let i = 0; i < enabledCrwlers.length; i++) {
+        await enabledCrwlers[i].module.start(api, networkInfo.name);
+        await wait(5000);
+      }
+
+      isError = false;
+
+      await provider.disconnect();
+      return;
+    };
+
+    const runNonApiCrawlers = async (nonApiCrawlers, networkInfo) => {
+      const enabledCrwlers = nonApiCrawlers.filter((crawler) => crawler.enabled == 'true');
+      const api = null;
+      for (let i = 0; i < enabledCrwlers.length; i++) {
+        await enabledCrwlers[i].module.start(api, networkInfo.name);
+        await wait(5000);
+      }
+      return;
+    };
+
+    await runApiCrawlers(crawlers.apiCrawlers, network);
+    await runNonApiCrawlers(crawlers.nonApiCrawlers, network);
 
     return;
-  }
-
-  async getPolkadotAPI(wsProviderUrl) {
-    const provider = new WsProvider(wsProviderUrl, false);
-    await provider.connect();
-    const api = await ApiPromise.create({ provider });
-    api.on('error', async () => {
-      Logger.error('Error: API crashed');
-      await api.disconnect();
-      process.exit(1);
-    });
-    api.on('disconnected', async () => {
-      Logger.error('API has been disconnected from the endpoint');
-      // await api.disconnect();
-      process.exit(1);
-    });
-    try {
-      await api.isReady;
-      Logger.info('API is ready!');
-    } catch (error) {
-      Logger.error('Error', error);
-    }
-    return api;
   }
 }

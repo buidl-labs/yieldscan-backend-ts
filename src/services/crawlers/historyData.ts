@@ -14,11 +14,7 @@ module.exports = {
     const eraIndex = await module.exports.getEraIndexes(api, ValidatorHistory);
     // Logger.debug(eraIndex);
     if (eraIndex.length !== 0) {
-      await module.exports.storeValidatorHistory(
-        api,
-        eraIndex.slice(Math.max(eraIndex.length - 2, 0)),
-        ValidatorHistory,
-      );
+      await module.exports.storeValidatorHistory(api, eraIndex, ValidatorHistory);
     }
     Logger.info('stop historyData');
     return;
@@ -73,11 +69,12 @@ module.exports = {
 
     const valPrefs = {};
     const valExposure = {};
-    const rewards: Array<IValidatorHistory> = [];
+    // const rewards: Array<IValidatorHistory> = [];
 
     for (let i = 0; i < pointsHistory.length; i++) {
       Logger.info('waiting 5 secs');
-      await wait(5000);
+      // await wait(5000);
+      const rewards: Array<IValidatorHistory> = [];
       valExposure[pointsHistory[i].eraIndex] = await Promise.all(
         Object.keys(pointsHistory[i].erasRewardPoints.individual).map((x) =>
           api.query.staking.erasStakers(pointsHistory[i].eraIndex, x.toString()),
@@ -85,7 +82,7 @@ module.exports = {
       );
 
       Logger.info('waiting 5s');
-      await wait(5000);
+      // await wait(5000);
 
       valPrefs[pointsHistory[i].eraIndex] = await Promise.all(
         Object.keys(pointsHistory[i].erasRewardPoints.individual).map((x) =>
@@ -147,13 +144,15 @@ module.exports = {
           slashCount: slashInfo[0] !== undefined ? parseInt(slashInfo[0].total) : 0,
         });
       });
-    }
 
-    // insert data into DB
-    try {
-      await ValidatorHistory.insertMany(rewards);
-    } catch (error) {
-      Logger.error('Error while updating validator history data', error);
+      // insert data into DB
+      if (rewards.length > 0) {
+        try {
+          await ValidatorHistory.insertMany(rewards);
+        } catch (error) {
+          Logger.error('Error while updating validator history data', error);
+        }
+      }
     }
     return;
   },
