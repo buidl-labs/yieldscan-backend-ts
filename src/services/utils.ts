@@ -11,9 +11,9 @@ export async function wait(ms: number): Promise<void> {
   });
 }
 
-export async function getLinkedValidators(socialInfo, stashId) {
+export async function getLinkedValidators(networkName, socialInfo, stashId) {
   const arr = Object.values(socialInfo).filter((x) => x !== null);
-  const AccountIdentity = Container.get('AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
+  const AccountIdentity = Container.get(networkName + 'AccountIdentity') as mongoose.Model<IAccountIdentity & mongoose.Document>;
   const linkedValidators = await AccountIdentity.aggregate([
     {
       $match: {

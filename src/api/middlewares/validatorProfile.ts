@@ -152,7 +152,7 @@ const validatorProfile = async (req, res, next) => {
           })
         : [{}];
 
-    const linkedValidators = await getLinkedValidators(socialInfo[0], keyStats[0].stashId);
+    const linkedValidators = await getLinkedValidators(networkName, socialInfo[0], keyStats[0].stashId);
 
     return res
       .json({
