@@ -50,10 +50,10 @@ export default {
       name: 'polkadot',
       wsProviderUrl: process.env.WS_POLKADOT_PROVIDER_URL,
     },
-    {
-      name: 'kusama',
-      wsProviderUrl: process.env.WS_KUSAMA_PROVIDER_URL,
-    },
+    // {
+    //   name: 'kusama',
+    //   wsProviderUrl: process.env.WS_KUSAMA_PROVIDER_URL,
+    // },
   ],
 
   crawlers: {
