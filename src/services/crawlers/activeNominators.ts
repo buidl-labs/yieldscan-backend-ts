@@ -88,7 +88,8 @@ module.exports = {
     const TotalRewardHistory = Container.get(networkName + 'TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
-    const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(4);
+    const numberOfErasPerDay = networkName == 'kusama' ? 4 : 1;
+    const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(numberOfErasPerDay);
     const ValidatorHistory = Container.get(networkName + 'ValidatorHistory') as mongoose.Model<
       IValidatorHistory & mongoose.Document
     >;
