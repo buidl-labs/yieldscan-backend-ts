@@ -94,10 +94,11 @@ module.exports = {
     >;
     const nominatorRewardData = [];
     const eraIndexArr = lastIndexDB.map((x) => x.eraIndex);
-    // const decimalPlaces = networkName == 'kusama' ? 12 : 10;
+    const decimalPlaces = networkName == 'kusama' ? 12 : 10;
     const previous4ErasData = await ValidatorHistory.find({ eraIndex: { $in: eraIndexArr } });
     previous4ErasData.map((x) => {
-      const totalReward = lastIndexDB.filter((y) => y.eraIndex == x.eraIndex)[0].eraTotalReward;
+      const totalReward =
+        lastIndexDB.filter((y) => y.eraIndex == x.eraIndex)[0].eraTotalReward / Math.pow(10, decimalPlaces);
       const poolReward = (totalReward * x.eraPoints) / x.totalEraPoints;
       const commission = x.commission / Math.pow(10, 9);
       x.nominatorsInfo.map((nom) => {
