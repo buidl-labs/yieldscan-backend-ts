@@ -10,7 +10,7 @@ if (envFound.error) {
   throw new Error("⚠️  Couldn't find .env file  ⚠️");
 }
 
-const DEFAULT_PORT = '3000';
+const DEFAULT_PORT = '5000';
 
 export default {
   /**
