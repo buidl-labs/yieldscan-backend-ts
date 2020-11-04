@@ -1,7 +1,7 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { sortLowRisk, sortMedRisk, HttpError } from '../../services/utils';
+import { sortLowRisk, sortMedRisk, sortHighRisk, HttpError } from '../../services/utils';
 
 const risk_set = async (req, res, next) => {
   const Logger = Container.get('logger');
@@ -74,12 +74,12 @@ const risk_set = async (req, res, next) => {
 
     const lowRiskSortArr = sortLowRisk(arr1);
     const medRiskSortArr = sortMedRisk(arr1);
+    const highRiskSortArr = sortHighRisk(arr1);
 
-    const highriskset = arr1.slice(0, 16);
     const result = {
       lowriskset: lowRiskSortArr.length > 16 ? lowRiskSortArr.slice(0, 16) : lowRiskSortArr,
       medriskset: medRiskSortArr.length > 16 ? medRiskSortArr.slice(0, 16) : medRiskSortArr,
-      highriskset: highriskset,
+      highriskset: highRiskSortArr.length > 16 ? highRiskSortArr.slice(0, 16) : highRiskSortArr,
       totalset: arr1,
     };
     return res.json(result).status(200);
