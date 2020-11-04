@@ -38,11 +38,11 @@ const validatorsInfo = async (req, res, next) => {
 
     data.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / Math.pow(10, 12);
-      x.ownStake = x.ownStake / Math.pow(10, 12);
+      x.totalStake = x.totalStake / Math.pow(10, 18);
+      x.ownStake = x.ownStake / Math.pow(10, 18);
       x.othersStake = x.totalStake - x.ownStake;
       x.numOfNominators = x.nominators.length;
-      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 12);
+      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, 18);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
 

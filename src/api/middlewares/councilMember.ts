@@ -47,10 +47,10 @@ const councilMember = async (req, res, next) => {
     }
 
     const result = data.map((x) => {
-      const totalBalance = x.totalBalance / Math.pow(10, 12);
-      const backing = x.stake / Math.pow(10, 12);
+      const totalBalance = x.totalBalance / Math.pow(10,18);
+      const backing = x.stake / Math.pow(10,18);
       const backersInfo = x.backersInfo.map((y) => {
-        const stake = y.stake / Math.pow(10, 12);
+        const stake = y.stake / Math.pow(10,18);
         const backerName = x.backersIdentity.filter((z) => z.accountId == y.backer);
         return {
           stake: stake,

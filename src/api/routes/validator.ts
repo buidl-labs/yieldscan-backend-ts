@@ -11,7 +11,7 @@ const route = Router();
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/validator', route);
+  app.use('/edgeware/validator', route);
 
   route.get('/multi', middlewares.validatorsInfo);
   route.get('/:id', middlewares.validatorProfile);
