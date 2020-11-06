@@ -63,7 +63,7 @@ module.exports = {
     return stakingInfo.map((x) => {
       const stashId = x.stashId.toString();
       const accountId = x.accountId.toString();
-      const controllerId = x.controllerId.toString();
+      const controllerId = x.controllerId !== null ? x.controllerId.toString() : null;
       const commission = parseInt(x.validatorPrefs.commission);
       const totalStake =
         parseInt(x.exposure.total) !== 0 ? parseInt(x.exposure.total) : parseInt(x.stakingLedger.total);
@@ -71,18 +71,18 @@ module.exports = {
       const claimedRewards = x.stakingLedger.claimedRewards.map((era) => parseInt(era));
       const nominators = sessionValidators.includes(stashId)
         ? x.exposure.others.map((y) => {
-          const nomId = y.who.toString();
-          const stake = parseInt(y.value);
-          return {
-            nomId: nomId,
-            stake: stake,
-          };
-        })
+            const nomId = y.who.toString();
+            const stake = parseInt(y.value);
+            return {
+              nomId: nomId,
+              stake: stake,
+            };
+          })
         : nominations
-          .filter((y) => y.targets.includes(stashId))
-          .map((z) => {
-            return { nomId: z.nomId };
-          });
+            .filter((y) => y.targets.includes(stashId))
+            .map((z) => {
+              return { nomId: z.nomId };
+            });
       return {
         stashId: stashId,
         controllerId: controllerId,

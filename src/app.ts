@@ -19,7 +19,7 @@ async function startCrawlers() {
 }
 
 startCrawlers().catch((error) => {
-  Logger.error(error);
+  console.log(error);
   process.exit(1);
 });
 
