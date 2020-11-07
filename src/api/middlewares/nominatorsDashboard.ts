@@ -53,7 +53,7 @@ const nominatorsDashboard = async (req, res, next) => {
       const nomtotalStake =
         x.validatorsInfo.reduce((a, b) => (b.nomStake !== (null || undefined) ? a + b.nomStake : a), 0) /
         (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
-      const nominations = x.validatorsInfo.length;
+      const nominations = x.validatorsInfo.filter((val) => val.isElected).length;
       return {
         nomId: x.nomId,
         nomtotalStake: nomtotalStake,
