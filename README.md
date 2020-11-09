@@ -1,4 +1,6 @@
-# YieldScan Backend
+# YieldScan Backend - Edgeware
+
+This serves as a backend for [Yieldscan Edgeware Integration frontend](https://github.com/nblogist/yieldscan-frontend).
 
   ## Development
 
@@ -49,6 +51,7 @@ npm start
 
 **IMPORTANT NOTE:** When creating the database for the first time, it would might take around 30-45 minutes for all data endpoints to start functioning.
 
+**Keeping the crawlers going:** the websocket disconnects automatically when getting data for a long time, if you are moving this to production make sure to use pm2 or similar service in combination, to ensure the data keep getting updated; Else you'd be left with stale data
   ## Codebase Guide:
 
   ### Git commit
@@ -224,3 +227,16 @@ npm start
 ``` javascript
     const modelInstance = Container.get('modelName');
 ```
+## Contributing
+
+Please submit pull requests to us using the format described while making a pull request.
+
+## Authors
+
+* **Furqan Ahmed** - Edgeware Integration - [Contact](https://www.flow.page/FurqanAhmed)
+
+See also the list of [contributors](https://github.com/nblogist/yieldscan-backend-ts/contributors) who participated in this project.
+
+## Acknowledgments
+
+* [Drew Stone](https://github.com/drewstone/)
