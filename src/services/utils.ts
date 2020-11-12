@@ -72,6 +72,15 @@ export function sortMedRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
   return medRiskSet;
 }
 
+export function chunkArray(array: Array<unknown>, size: number): Array<unknown> {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    const chunk = array.slice(i, i + size);
+    result.push(chunk);
+  }
+  return result;
+}
+
 // Todo save and fetch reused data in a file
 
 // export function jsonReader(filePath, cb) {

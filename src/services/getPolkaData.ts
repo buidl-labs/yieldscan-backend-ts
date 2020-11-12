@@ -44,6 +44,11 @@ export default class GetPolkaData {
       const getPolkadotAPI = async (wsProviderUrl) => {
         const provider = new WsProvider(wsProviderUrl, false);
         await provider.connect();
+        provider.on('error', async () => {
+          Logger.error('Error: API crashed');
+          await provider.disconnect();
+          process.exit(1);
+        });
         const api = await ApiPromise.create({ provider });
         api.on('error', async () => {
           Logger.error('Error: API crashed');
