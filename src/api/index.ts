@@ -4,6 +4,7 @@ import actors from './routes/actors';
 import user from './routes/user';
 import validator from './routes/validator';
 import council from './routes/council';
+import historic from './routes/historic';
 import twitter from './routes/twitter';
 
 // guaranteed to get dependencies
@@ -17,6 +18,7 @@ export default (): Router => {
   actors(app);
   user(app);
   validator(app);
+  historic(app);
   council(app);
   twitter(app);
 
