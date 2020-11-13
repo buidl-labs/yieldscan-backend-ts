@@ -12,6 +12,7 @@ import updateCouncilProfile from './updateCouncilProfile';
 import validatorsInfo from './validatorsInfo';
 import top_validator from './top_validator';
 import top_nominator from './top_nominator';
+import lowestNominatorStake from './lowestNominatorStake';
 export default {
   max_set,
   risk_set,
@@ -27,4 +28,5 @@ export default {
   validatorsInfo,
   top_validator,
   top_nominator,
+  lowestNominatorStake,
 };
