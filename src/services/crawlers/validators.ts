@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Container } from 'typedi';
 
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { wait, scaleData, normalizeData } from '../utils';
+import { wait, scaleData, normalizeData, chunkArray } from '../utils';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 
@@ -12,8 +12,11 @@ module.exports = {
     Logger.info('start validators');
 
     const allStashes = (await api.derive.staking.stashes()).map((x) => x.toString());
+    await wait(5000);
     const sessionAndNextElectedValidators = await api.derive.staking.validators();
+    await wait(5000);
     const waitingValidators = (await api.derive.staking.waitingInfo()).waiting.map((x) => x.toString());
+    await wait(5000);
     const sessionValidators = sessionAndNextElectedValidators.validators.map((x) => x.toString());
 
     // we need to do the following because all stashes was missing one of the validators on crosschecking
@@ -59,7 +62,16 @@ module.exports = {
 
   getStakingInfo: async function (api, sessionValidators, nextElected, waitingValidators, nominations, allStashes) {
     await wait(5000);
-    const stakingInfo = await Promise.all(allStashes.map((valId) => api.derive.staking.account(valId)));
+
+    const chunkedStashes = chunkArray(allStashes, 100);
+    const stakingInfo = [];
+
+    for (let i = 0; i < chunkedStashes.length; i++) {
+      const info = await Promise.all(chunkedStashes[i].map((valId) => api.derive.staking.account(valId)));
+      stakingInfo.push(...info);
+      await wait(5000);
+    }
+
     return stakingInfo.map((x) => {
       const stashId = x.stashId.toString();
       const accountId = x.accountId.toString();
