@@ -67,16 +67,16 @@ export default {
         module: require('../services/crawlers/historyTotalRewards'),
       },
       {
-        enabled: process.env.CRAWLER_ACCOUNT_IDENTITY,
-        module: require('../services/crawlers/accountIdentity'),
-      },
-      {
         enabled: process.env.CRAWLER_VALIDATORS_ENABLED,
         module: require('../services/crawlers/validators'),
       },
       {
         enabled: process.env.CRAWLER_COUNCIL_ENABLED,
         module: require('../services/crawlers/council'),
+      },
+      {
+        enabled: process.env.CRAWLER_ACCOUNT_IDENTITY,
+        module: require('../services/crawlers/accountIdentity'),
       },
     ],
     nonApiCrawlers: [
