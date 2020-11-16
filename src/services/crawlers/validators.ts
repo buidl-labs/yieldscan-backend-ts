@@ -11,6 +11,8 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('start validators');
 
+    const maxNominatorRewardedPerValidator = await api.consts.staking.maxNominatorRewardedPerValidator.toNumber();
+
     const allStashes = (await api.derive.staking.stashes()).map((x) => x.toString());
     await wait(5000);
     const sessionAndNextElectedValidators = await api.derive.staking.validators();
@@ -43,6 +45,7 @@ module.exports = {
       waitingValidators,
       nominations,
       allStashes,
+      maxNominatorRewardedPerValidator,
     );
     // Logger.debug(stakingInfo);
     stakingInfo = await module.exports.getEstimatedPoolReward(api, allStashes, stakingInfo, networkName);
@@ -60,7 +63,15 @@ module.exports = {
     return;
   },
 
-  getStakingInfo: async function (api, sessionValidators, nextElected, waitingValidators, nominations, allStashes) {
+  getStakingInfo: async function (
+    api,
+    sessionValidators,
+    nextElected,
+    waitingValidators,
+    nominations,
+    allStashes,
+    maxNominatorRewardedPerValidator,
+  ) {
     await wait(5000);
 
     const chunkedStashes = chunkArray(allStashes, 100);
@@ -106,6 +117,7 @@ module.exports = {
         isWaiting: waitingValidators.includes(stashId),
         ownStake: ownStake,
         nominators: nominators,
+        oversubscribed: nominators.length >= maxNominatorRewardedPerValidator ? true : false,
         claimedRewards: claimedRewards,
       };
     });

@@ -9,6 +9,7 @@ export interface IStakingInfo {
   accountId: string;
   commission: number;
   totalStake: number;
+  oversubscribed: boolean;
   ownStake: number;
   isElected: boolean;
   isNextElected: boolean;
