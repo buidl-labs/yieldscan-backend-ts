@@ -46,7 +46,7 @@ module.exports = {
 
     for (let i = 0; i < chunkedAccounts.length; i++) {
       const info = await Promise.all(
-        accountIds.map(async (x) => {
+        chunkedAccounts[i].map(async (x) => {
           const info = await api.derive.accounts.info(x);
           const display = info.identity.display !== undefined ? info.identity.display.toString() : null;
           const email = info.identity.email !== undefined ? info.identity.email.toString() : null;
