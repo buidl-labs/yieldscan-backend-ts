@@ -202,7 +202,7 @@ module.exports = {
       const slashScore = Math.min(element.totalSlashCount, 2);
       const activevalidatingScore = 1 / (element.activeErasCount + 1);
       const backersScore = 1 / scaleData(element.nominators.length, maxNomCount, minNomCount);
-      const validatorOwnRisk = element.isElected ? 1 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 0;
+      const validatorOwnRisk = element.isElected ? 3 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 1;
       const totalStakeScore = 1 / scaleData(element.totalStake, maxTotalStake, minTotalStake);
       // + 1 because othersStake can theoretically be 0
       const otherStakeScore = element.isElected ? 1 / scaleData(otherStake + 1, maxOthersStake, minOthersStake) : 0;
