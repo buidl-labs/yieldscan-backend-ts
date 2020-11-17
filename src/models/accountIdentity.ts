@@ -5,6 +5,7 @@ const AccountIdentity = new mongoose.Schema(
     stashId: String,
     display: String,
     email: String,
+    eraIndex: Number,
     legal: String,
     riot: String,
     web: String,
