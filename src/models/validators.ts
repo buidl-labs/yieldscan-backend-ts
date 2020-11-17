@@ -11,6 +11,7 @@ const Validators = new mongoose.Schema(
     commission: Number,
     totalStake: Number,
     ownStake: Number,
+    oversubscribed: Boolean,
     rewardsPer100KSM: Number,
     isElected: Boolean,
     isNextElected: Boolean,
