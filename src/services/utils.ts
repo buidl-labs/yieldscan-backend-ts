@@ -50,7 +50,7 @@ export function normalizeData(val: number, max: number, min: number): number {
 }
 
 export function sortLowRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
-  const lowestRiskset = arr.filter((x) => x.riskScore < 0.3 && x.commission !== 1 && x.numOfNominators < 250);
+  const lowestRiskset = arr.filter((x) => x.riskScore < 0.3 && x.commission !== 1 && !x.oversubscribed);
 
   // Uncomment below if you want to include include suggestions from other risk-sets
 
@@ -64,7 +64,7 @@ export function sortLowRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
 }
 
 export function sortMedRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
-  const medRiskSet = arr.filter((x) => x.riskScore < 0.5 && x.commission !== 1 && x.numOfNominators < 250);
+  const medRiskSet = arr.filter((x) => x.riskScore < 0.5 && x.commission !== 1 && !x.oversubscribed);
 
   // Uncomment below if you want to include include suggestions from other risk-sets
 
@@ -75,7 +75,7 @@ export function sortMedRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
 }
 
 export function sortHighRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
-  const highRiskSet = arr.filter((x) => x.commission !== 1 && x.numOfNominators < 250);
+  const highRiskSet = arr.filter((x) => x.commission !== 1 && !x.oversubscribed);
 
   // Uncomment below if you want to include include suggestions from other risk-sets
 
