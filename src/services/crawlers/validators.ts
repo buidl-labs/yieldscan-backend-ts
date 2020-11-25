@@ -2,9 +2,10 @@ import mongoose from 'mongoose';
 import { Container } from 'typedi';
 
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { wait, scaleData, normalizeData, chunkArray } from '../utils';
+import { wait, scaleData, normalizeData, chunkArray, convertJsonToXlsx } from '../utils';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
+import { isNil, sample } from 'lodash';
 
 module.exports = {
   start: async function (api, networkName) {
@@ -166,22 +167,27 @@ module.exports = {
     stakingInfo.map((x) => {
       const requiredData = historyData.filter((y) => y._id == x.stashId);
       if (requiredData.length == 0) {
-        x.estimatedPoolReward = historyData.reduce((a, b) => a + b.avgEraPointsFraction, 0) / historyData.length;
+        x.avgEraPointsFraction = historyData.reduce((a, b) => a + b.avgEraPointsFraction, 0) / historyData.length;
+        x.estimatedPoolReward =
+          (historyData.reduce((a, b) => a + b.avgEraPointsFraction, 0) / historyData.length) * lastIndexDBTotalReward;
         x.activeErasCount = 0;
         x.totalSlashCount = 0;
         const poolReward = x.estimatedPoolReward / Math.pow(10, decimalPlaces);
         const totalStake = x.totalStake / Math.pow(10, decimalPlaces);
         const commission = x.commission / Math.pow(10, 9);
+        x.userStakeFraction = 100 / (100 + totalStake);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier
           ((poolReward - commission * poolReward) * 100) / (100 + totalStake);
       } else {
+        x.avgEraPointsFraction = requiredData[0].avgEraPointsFraction;
         x.estimatedPoolReward = requiredData[0].estimatedPoolReward;
         x.activeErasCount = requiredData[0].activeErasCount;
         x.totalSlashCount = requiredData[0].totalSlashCount;
         const poolReward = x.estimatedPoolReward / Math.pow(10, decimalPlaces);
         const totalStake = x.totalStake / Math.pow(10, decimalPlaces);
         const commission = x.commission / Math.pow(10, 9);
+        x.userStakeFraction = 100 / (100 + totalStake);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier
           ((poolReward - commission * poolReward) * 100) / (100 + totalStake);
@@ -195,6 +201,8 @@ module.exports = {
     const Logger = Container.get('logger');
     Logger.info('waiting 5 secs');
     await wait(5000);
+    const maxErasCount = Math.max(...stakingInfo.map((x) => x.activeErasCount));
+    const minErasCount = Math.min(...stakingInfo.map((x) => x.activeErasCount));
     const maxNomCount = Math.max(...stakingInfo.map((x) => x.nominators.length));
     const minNomCount = Math.min(...stakingInfo.map((x) => x.nominators.length));
     const maxTotalStake = Math.max(...stakingInfo.map((x) => x.totalStake));
@@ -210,24 +218,51 @@ module.exports = {
     const riskScoreArr = [];
     stakingInfo.forEach((element) => {
       const otherStake = element.isElected ? element.nominators.reduce((a, b) => a + b.stake, 0) : null;
-      // Todo: better formulae for handling high slash counts
       const slashScore = Math.min(element.totalSlashCount, 2);
-      const activevalidatingScore = 1 / (element.activeErasCount + 1);
+      const activevalidatingScore = 1 / scaleData(element.activeErasCount, maxErasCount, minErasCount);
       const backersScore = 1 / scaleData(element.nominators.length, maxNomCount, minNomCount);
-      const validatorOwnRisk = element.isElected ? 3 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 1;
+      const validatorOwnRisk = !isNil(element.ownStake) ? 2 / scaleData(element.ownStake, maxOwnStake, minOwnStake) : 2;
       const totalStakeScore = 1 / scaleData(element.totalStake, maxTotalStake, minTotalStake);
-      // + 1 because othersStake can theoretically be 0
-      const otherStakeScore = element.isElected ? 1 / scaleData(otherStake + 1, maxOthersStake, minOthersStake) : 0;
+      const otherStakeScore = element.isElected ? 1 / scaleData(otherStake, maxOthersStake, minOthersStake) : 1;
       const riskScore =
         slashScore + activevalidatingScore + backersScore + otherStakeScore + validatorOwnRisk + totalStakeScore;
 
       riskScoreArr.push({
-        riskScore: riskScore,
         stashId: element.stashId,
+        isElected: element.isElected,
+        isWaiting: element.isWaiting,
+        isNextElected: element.isNextElected,
+        totalSlashCount: element.totalSlashCount,
+        activeErasCount: element.activeErasCount,
+        selfStake: !isNil(element.ownStake) ? (element.ownStake / Math.pow(10, 10)).toFixed(2) : null,
+        totalStake: (element.totalStake / Math.pow(10, 10)).toFixed(2),
+        nominatorsCount: element.nominators.length,
+        othersStake: otherStake ? (otherStake / Math.pow(10, 10)).toFixed(2) : otherStake,
+        slashScore: slashScore.toFixed(3),
+        activeErasStakeScore: activevalidatingScore.toFixed(3),
+        selfStakeScore: validatorOwnRisk.toFixed(3),
+        totalStakeScore: totalStakeScore.toFixed(3),
+        backersScore: backersScore.toFixed(3),
+        otherStakeScore: otherStakeScore.toFixed(3),
+        activeErasStakeScorePercentage: ((activevalidatingScore / riskScore) * 100).toFixed(2),
+        selfStakeScorePercentage: ((validatorOwnRisk / riskScore) * 100).toFixed(2),
+        totalStakeScorePercentage: ((totalStakeScore / riskScore) * 100).toFixed(2),
+        backersScorePercentage: ((backersScore / riskScore) * 100).toFixed(2),
+        otherStakeScorePercentage: ((otherStakeScore / riskScore) * 100).toFixed(2),
+        riskScore: riskScore.toFixed(3),
+        avgEraPointsFraction: element.avgEraPointsFraction,
+        commission: element.commission / Math.pow(10, 7),
+        userStakeFraction: element.userStakeFraction,
+        estimatedPoolReward: element.estimatedPoolReward / Math.pow(10, 10),
+        rewardsPer100: element.rewardsPer100KSM,
       });
     });
     const maxRS = Math.max(...riskScoreArr.map((x) => x.riskScore));
     const minRS = Math.min(...riskScoreArr.map((x) => x.riskScore));
+    riskScoreArr.map((x) => {
+      x.normalizedRiskScore = normalizeData(x.riskScore, maxRS, minRS);
+    });
+    convertJsonToXlsx('sample.xlsx', riskScoreArr);
     stakingInfo.map((x) => {
       const riskData = riskScoreArr.filter((y) => y.stashId == x.stashId);
       x.riskScore = normalizeData(riskData[0].riskScore, maxRS, minRS);

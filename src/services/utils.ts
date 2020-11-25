@@ -1,6 +1,8 @@
 import { CustomError } from 'ts-custom-error';
 import mongoose from 'mongoose';
 import { Container } from 'typedi';
+import json2xls from 'json2xls';
+import { writeFileSync } from 'fs';
 
 import { IStakingInfo } from '../interfaces/IStakingInfo';
 import { IAccountIdentity } from '../interfaces/IAccountIdentity';
@@ -81,6 +83,10 @@ export function chunkArray(array: Array<unknown>, size: number): Array<unknown> 
   return result;
 }
 
+export function convertJsonToXlsx(filename: string, data: Array<unknown>): void {
+  const xls = json2xls(data);
+  writeFileSync(filename, xls, 'binary');
+}
 // Todo save and fetch reused data in a file
 
 // export function jsonReader(filePath, cb) {

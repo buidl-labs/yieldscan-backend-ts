@@ -1,4 +1,6 @@
 export interface IStakingInfo {
+  userStakeFraction: number;
+  avgEraPointsFraction: number;
   rewardsPer100KSM: number;
   riskScore: number;
   estimatedPoolReward: number;
