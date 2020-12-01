@@ -1,6 +1,6 @@
 # YieldScan Backend - Edgeware
 
-This serves as a backend for [Yieldscan Edgeware Integration frontend](https://github.com/nblogist/yieldscan-frontend).
+This serves as a backend for [Yieldscan Edgeware Integration frontend](https://github.com/hiseedcode/yieldscan-frontend).
 
   ## Development
 
