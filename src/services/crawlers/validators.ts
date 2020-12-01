@@ -15,7 +15,6 @@ module.exports = {
     const sessionAndNextElectedValidators = await api.derive.staking.validators();
     const waitingValidators = (await api.derive.staking.waitingInfo()).waiting.map((x) => x.toString());
     const sessionValidators = sessionAndNextElectedValidators.validators.map((x) => x.toString());
-
     // we need to do the following because all stashes was missing one of the validators on crosschecking
     sessionValidators.map((x) => {
       if (!allStashes.includes(x)) {
@@ -143,8 +142,8 @@ module.exports = {
         x.estimatedPoolReward = historyData.reduce((a, b) => a + b.avgEraPointsFraction, 0) / historyData.length;
         x.activeErasCount = 0;
         x.totalSlashCount = 0;
-        const poolReward = x.estimatedPoolReward / Math.pow(10, 12);
-        const totalStake = x.totalStake / Math.pow(10, 12);
+        const poolReward = x.estimatedPoolReward / Math.pow(10, 18);
+        const totalStake = x.totalStake / Math.pow(10, 18);
         const commission = x.commission / Math.pow(10, 9);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier
@@ -153,8 +152,8 @@ module.exports = {
         x.estimatedPoolReward = requiredData[0].estimatedPoolReward;
         x.activeErasCount = requiredData[0].activeErasCount;
         x.totalSlashCount = requiredData[0].totalSlashCount;
-        const poolReward = x.estimatedPoolReward / Math.pow(10, 12);
-        const totalStake = x.totalStake / Math.pow(10, 12);
+        const poolReward = x.estimatedPoolReward / Math.pow(10, 18);
+        const totalStake = x.totalStake / Math.pow(10, 18);
         const commission = x.commission / Math.pow(10, 9);
         x.rewardsPer100KSM =
           // eslint-disable-next-line prettier/prettier

@@ -26,14 +26,14 @@ const top_nominator = async (req, res, next) => {
     sortedData.map((x) => {
       x.nomEraReward = x.validatorsInfo.reduce((a, b) => {
         const commission = b.commission / Math.pow(10, 9);
-        const totalStake = b.totalStake / Math.pow(10, 12);
-        const nomStake = b.nomStake / Math.pow(10, 12);
-        const poolReward = ((eraTotalReward / Math.pow(10, 12)) * b.eraPoints) / b.totalEraPoints;
+        const totalStake = b.totalStake / Math.pow(10, 18);
+        const nomStake = b.nomStake / Math.pow(10, 18);
+        const poolReward = ((eraTotalReward / Math.pow(10, 18)) * b.eraPoints) / b.totalEraPoints;
         const reward = (poolReward - commission * poolReward) * (nomStake / totalStake);
         return a + reward;
       }, 0);
       x.nomTotalStake = x.validatorsInfo.reduce((a, b) => {
-        const nomStake = b.nomStake / Math.pow(10, 12);
+        const nomStake = b.nomStake / Math.pow(10, 18);
         return a + nomStake;
       }, 0);
       x.nominations = x.validatorsInfo.length;

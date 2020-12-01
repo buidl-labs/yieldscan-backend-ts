@@ -4,9 +4,9 @@ const route = Router();
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/actors', route);
+  app.use('/', route);
 
-  route.get('/validators', middlewares.validatorsDashboard);
-  route.get('/waiting', middlewares.waitingDashboard);
-  route.get('/nominators', middlewares.nominatorsDashboard);
+  route.get('/edgeware/validators', middlewares.validatorsDashboard);
+  route.get('/edgeware/waiting', middlewares.waitingDashboard);
+  route.get('/edgeware/nominators', middlewares.nominatorsDashboard);
 };

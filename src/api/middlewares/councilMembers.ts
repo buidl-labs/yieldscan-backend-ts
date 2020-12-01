@@ -35,12 +35,12 @@ const councilMembers = async (req, res, next) => {
     const activeMembers = data
       .filter((x) => !x.isRunnersUp)
       .map((x) => {
-        const totalBalance = x.totalBalance / Math.pow(10, 12);
-        const backing = x.stake / Math.pow(10, 12);
+        const totalBalance = x.totalBalance / Math.pow(10,18);
+        const backing = x.stake / Math.pow(10,18);
         const name = x.memberIdentity[0] !== undefined ? x.memberIdentity[0].display : null;
         const numberOfBackers = x.backersInfo.length;
         //   const backersInfo = x.backersInfo.map((y) => {
-        //     const stake = y.stake / Math.pow(10, 12);
+        //     const stake = y.stake / Math.pow(10,18);
         //     const backerName = x.backersIdentity.filter((z) => z.accountId == y.backer);
         //     return {
         //       stake: stake,
@@ -60,12 +60,12 @@ const councilMembers = async (req, res, next) => {
     const runnersUp = data
       .filter((x) => x.isRunnersUp)
       .map((x) => {
-        const totalBalance = x.totalBalance / Math.pow(10, 12);
-        const backing = x.stake / Math.pow(10, 12);
+        const totalBalance = x.totalBalance / Math.pow(10,18);
+        const backing = x.stake / Math.pow(10,18);
         const name = x.memberIdentity[0] !== undefined ? x.memberIdentity[0].display : null;
         const numberOfBackers = x.backersInfo.length;
         //   const backersInfo = x.backersInfo.map((y) => {
-        //     const stake = y.stake / Math.pow(10, 12);
+        //     const stake = y.stake / Math.pow(10,18);
         //     const backerName = x.backersIdentity.filter((z) => z.accountId == y.backer);
         //     return {
         //       stake: stake,

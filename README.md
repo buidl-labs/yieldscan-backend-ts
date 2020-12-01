@@ -1,34 +1,36 @@
-# YieldScan Backend
+# YieldScan Backend - Edgeware
+
+This serves as a backend for [Yieldscan Edgeware Integration frontend](https://github.com/hiseedcode/yieldscan-frontend).
 
   ## Development
 
 Clone the repository:
 
-``` 
-git clone https://github.com/buidl-labs/yieldscan-backend-ts.git
+```
+git clone https://github.com/nblogist/yieldscan-backend-ts.git
 ```
 
 cd into the main folder:
 
-``` 
+```
 cd yieldscan-backend-ts
 ```
 
   The first time, you will need to run:
 
-  
 
-``` 
+
+```
   npm install
   ```
 
-  
-  Define the following environment variables or simply save them in a `.env` file inside the main folder:
-  
 
-``` 
+  Define the following environment variables or simply save them in a `.env` file inside the main folder:
+
+
+```
 MONGODB_URI=your mongo url
-WS_PROVIDER_URL='wss://kusama-rpc.polkadot.io'    //for Kusama
+WS_PROVIDER_URL='wss://mainnet1.edgewa.re'    # For Edgeware
 CRAWLER_ERA_POINTS_HISTORY_ENABLE=true
 CRAWLER_NOMINATOR_HISTORY_ENABLE=true
 CRAWLER_VALIDATORS_ENABLED=true
@@ -41,7 +43,7 @@ LOG_LEVEL='debug'
 
 Then just start the server with
 
-``` 
+```
 npm start
 ```
 
@@ -49,6 +51,7 @@ npm start
 
 **IMPORTANT NOTE:** When creating the database for the first time, it would might take around 30-45 minutes for all data endpoints to start functioning.
 
+**Keeping the crawlers going:** the websocket disconnects automatically when getting data for a long time, if you are moving this to production make sure to use pm2 or similar service in combination, to ensure the data keep getting updated; Else you'd be left with stale data
   ## Codebase Guide:
 
   ### Git commit
@@ -57,10 +60,10 @@ npm start
 
   ### How to create route?
 
-  + Create `route` file: `src/api/routes/<your-route-name>.ts` 
+  + Create `route` file: `src/api/routes/<your-route-name>.ts`
 
   Example:
-  
+
 
 ``` javascript
     import {
@@ -86,10 +89,10 @@ npm start
 
   ### How to add/use services?
 
-  + Create `service` file (if not exists): `src/services/<service-name>.ts` 
+  + Create `service` file (if not exists): `src/services/<service-name>.ts`
 
   Example:
-  
+
 
 ``` javascript
     import {
@@ -120,7 +123,7 @@ npm start
   + Use your service by passing it through DI Container
 
   Example:
-  
+
 
 ``` javascript
     import YourService from 'services/your-service';
@@ -130,10 +133,10 @@ npm start
 
   ### How to create/use subcribers?
 
-  + Create `subscriber` file (if not exists): `src/subscribers/<subscriber-name>.ts` 
+  + Create `subscriber` file (if not exists): `src/subscribers/<subscriber-name>.ts`
 
   Example:
-  
+
 
 ``` javascript
     import {
@@ -158,7 +161,7 @@ npm start
   + Trigger an event from anywhere (preferably a service) in the app using the `eventDispatcher` instance
 
   Example:
-  
+
 
 ``` javascript
     eventDispatcher.dispatch(events.eventGroup.someEvent, {
@@ -168,10 +171,10 @@ npm start
 
   ### How to create new models?
 
-  + Create `definition` file: `src/models/definitions/<definition-name>.ts` 
+  + Create `definition` file: `src/models/definitions/<definition-name>.ts`
 
   Example:
-  
+
 
 ``` javascript
     export default {
@@ -183,10 +186,10 @@ npm start
     };
 ```
 
-  + Create interface for this model: `src/interfaces/<interface-name>.ts` 
+  + Create interface for this model: `src/interfaces/<interface-name>.ts`
 
   Example:
-  
+
 
 ``` javascript
     interface IValidator {
@@ -194,10 +197,10 @@ npm start
     };
 ```
 
-  + Create `model` file: `src/models/<model-name>.ts` 
+  + Create `model` file: `src/models/<model-name>.ts`
 
   Example:
-  
+
 
 ``` javascript
     import {
@@ -213,14 +216,27 @@ npm start
     export default mongoose.model < IValidator & mongoose.Document > ('Validator', Validator);
 ```
 
-  + Register the mongoose model and the interface globally for TS under `src/types/express/index.d.ts` 
+  + Register the mongoose model and the interface globally for TS under `src/types/express/index.d.ts`
 
-  + Register the model into the DI Container by adding it to `models` array: `src/loaders/index.ts` 
+  + Register the model into the DI Container by adding it to `models` array: `src/loaders/index.ts`
 
   + To use the model anywhere:
 
-  
+
 
 ``` javascript
     const modelInstance = Container.get('modelName');
 ```
+## Contributing
+
+Please submit pull requests to us using the format described while making a pull request.
+
+## Authors
+
+* **Furqan Ahmed** - Edgeware Integration - [Contact](https://www.flow.page/FurqanAhmed)
+
+See also the list of [contributors](https://github.com/nblogist/yieldscan-backend-ts/contributors) who participated in this project.
+
+## Acknowledgments
+
+* [Drew Stone](https://github.com/drewstone/)

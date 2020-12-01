@@ -91,9 +91,9 @@ module.exports = {
         const totalReward = lastIndexDB.filter((z) => z.eraIndex == y.eraIndex);
         const result = y.validatorsInfo.reduce((a, b) => {
           const commission = b.commission / Math.pow(10, 9);
-          const totalStake = b.totalStake / Math.pow(10, 12);
-          const nomStake = b.nomStake / Math.pow(10, 12);
-          const poolReward = ((totalReward[0].eraTotalReward / Math.pow(10, 12)) * b.eraPoints) / b.totalEraPoints;
+          const totalStake = b.totalStake / Math.pow(10, 18);
+          const nomStake = b.nomStake / Math.pow(10, 18);
+          const poolReward = ((totalReward[0].eraTotalReward / Math.pow(10, 18)) * b.eraPoints) / b.totalEraPoints;
           const reward = (poolReward - commission * poolReward) * (nomStake / totalStake);
           return a + reward;
         }, 0);

@@ -10,7 +10,7 @@ const route = Router();
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/council', route);
+  app.use('/edgeware/council', route);
 
   route.get('/members', middlewares.councilMembers);
   route.get('/member/:id', middlewares.councilMember);
