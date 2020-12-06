@@ -33,7 +33,7 @@
     "lodash": "^4.17.20",
     "method-override": "^3.0.0",
     "moment": "^2.27.0",
-    "moment-timezone": "^0.5.31",
+    "moment-timezone": "^0.5.32",
     "mongoose": "^5.9.21",
     "reflect-metadata": "^0.1.13",
     "ts-custom-error": "^3.1.1",
