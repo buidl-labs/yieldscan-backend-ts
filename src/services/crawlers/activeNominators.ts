@@ -24,6 +24,7 @@ module.exports = {
     // console.log(JSON.stringify(nominatorsInfo, null, 2));
 
     await module.exports.getDailyEarnings(nominatorsInfo, networkName);
+    await module.exports.getNominatorStats(nominatorsInfo, networkName);
 
     Logger.info('stop activeNominators');
     return;
@@ -121,6 +122,23 @@ module.exports = {
     } catch (error) {
       Logger.error('Error while updating active nominators info', error);
     }
+
+    return;
+    // const lastIndex = lastIndexDB[0].eraIndex;
+  },
+  getNominatorStats: async function (nominatorsInfo, networkName) {
+    const Logger = Container.get('logger');
+    const electedNominatorsInfo = nominatorsInfo.filter((nom) =>
+      nom.validatorsInfo.some((val) => val.isElected == true),
+    );
+    const nomCount = electedNominatorsInfo.length;
+    const totalRewards = electedNominatorsInfo.reduce((a, b) => a + b.dailyEarnings, 0);
+    const totalAmountStaked = electedNominatorsInfo.reduce((a, b) => {
+      const nomtotalStake = b.validatorsInfo.reduce((x, y) => {
+        return y.nomStake !== (null || undefined) ? x + y.nomStake : x;
+      }, 0);
+      return networkName == 'kusama' ? a + nomtotalStake / Math.pow(10, 12) : a + nomtotalStake / Math.pow(10, 10);
+    }, 0);
 
     return;
     // const lastIndex = lastIndexDB[0].eraIndex;
