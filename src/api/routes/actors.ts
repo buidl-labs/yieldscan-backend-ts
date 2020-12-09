@@ -10,4 +10,5 @@ export default (app: Router): void => {
   route.get('/validators', middlewares.validatorsDashboard);
   route.get('/waiting', middlewares.waitingDashboard);
   route.get('/nominators', middlewares.nominatorsDashboard);
+  route.get('/nominator/stats', middlewares.nominatorStats);
 };
