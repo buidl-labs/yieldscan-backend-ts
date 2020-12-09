@@ -7,6 +7,6 @@ export default (app: Router): void => {
   app.use('/kusama/rewards', route);
   app.use('/polkadot/rewards', route);
 
-  route.get('/max-set', middlewares.max_set);
+  route.get('/risk-set-only', middlewares.risk_set_only);
   route.get('/risk-set', middlewares.risk_set);
 };

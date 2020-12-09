@@ -1,4 +1,4 @@
-import max_set from './max_set';
+import risk_set_only from './risk_set_only';
 import risk_set from './risk_set';
 import validatorsDashboard from './validatorsDashboard';
 import waitingDashboard from './waitingDashboard';
@@ -15,7 +15,7 @@ import top_nominator from './top_nominator';
 import lowestNominatorStake from './lowestNominatorStake';
 import nominatorStats from './nominatorStats';
 export default {
-  max_set,
+  risk_set_only,
   risk_set,
   validatorsDashboard,
   waitingDashboard,

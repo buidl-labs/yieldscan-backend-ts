@@ -19,6 +19,7 @@ import ValidatorIdentity from '../models/validatorIdentity';
 import Council from '../models/council';
 import CouncilIdentity from '../models/councilIdentity';
 import NominatorStats from '../models/nominatorStats';
+import ValidatorRiskSets from '../models/validatorRiskSets';
 
 import { IValidatorHistory } from '../interfaces/IValidatorHistory';
 import { ICouncilIdentity } from '../interfaces/ICouncilIdentity';
@@ -30,6 +31,7 @@ import { IActiveNominators } from '../interfaces/IActiveNominators';
 import { IValidatorIdentity } from '../interfaces/IValidatorIdentity';
 import { ICouncil } from '../interfaces/ICouncil';
 import { INominatorStats } from '../interfaces/INominatorStats';
+import { IValidatorRiskSets } from '../interfaces/IValidatorRiskSets';
 
 export default async ({ expressApp }: { expressApp: express.Application }): Promise<void> => {
   const mongoConnection = await mongooseLoader();
@@ -88,6 +90,13 @@ export default async ({ expressApp }: { expressApp: express.Application }): Prom
         {
           name: network.name + 'NominatorStats',
           model: mongoose.model<INominatorStats & mongoose.Document>(network.name + 'NominatorStats', NominatorStats),
+        },
+        {
+          name: network.name + 'ValidatorRiskSets',
+          model: mongoose.model<IValidatorRiskSets & mongoose.Document>(
+            network.name + 'ValidatorRiskSets',
+            ValidatorRiskSets,
+          ),
         },
         {
           name: network.name + 'Council',
