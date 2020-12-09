@@ -2,9 +2,10 @@ import mongoose from 'mongoose';
 import { Container } from 'typedi';
 
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { wait, scaleData, normalizeData, chunkArray } from '../utils';
+import { wait, scaleData, normalizeData, chunkArray, sortLowRisk, sortMedRisk, sortHighRisk } from '../utils';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
+import { IValidatorRiskSets } from '../../interfaces/IValidatorRiskSets';
 
 module.exports = {
   start: async function (api, networkName) {
@@ -59,6 +60,7 @@ module.exports = {
     } catch (error) {
       Logger.error('Error while updating validators info', error);
     }
+    await module.exports.getLowMedHighRiskSets(Validators, networkName);
     Logger.info('stop validators');
     return;
   },
@@ -233,5 +235,88 @@ module.exports = {
       x.riskScore = normalizeData(riskData[0].riskScore, maxRS, minRS);
     });
     return stakingInfo;
+  },
+  getLowMedHighRiskSets: async function (Validators, networkName) {
+    await wait(5000);
+    const Logger = Container.get('logger');
+    try {
+      const sortedData = await Validators.aggregate([
+        {
+          $match: { $and: [{ isElected: true }, { isNextElected: true }] },
+        },
+        // {
+        //   $match: { isNextElected: true },
+        // },
+        {
+          $lookup: {
+            from: networkName + 'accountidentities',
+            localField: 'stashId',
+            foreignField: 'stashId',
+            as: 'info',
+          },
+        },
+        {
+          $sort: {
+            rewardsPer100KSM: -1,
+          },
+        },
+      ]);
+
+      sortedData.map((x) => {
+        x.commission = x.commission / Math.pow(10, 7);
+        x.totalStake = x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+        x.numOfNominators = x.nominators.length;
+        x.ownStake = x.ownStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+        x.othersStake = x.totalStake - x.ownStake;
+        x.estimatedPoolReward = x.estimatedPoolReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+        x.name = x.info[0] !== undefined ? x.info[0].display : null;
+      });
+
+      const arr1 = sortedData.map(
+        ({
+          stashId,
+          commission,
+          totalStake,
+          estimatedPoolReward,
+          numOfNominators,
+          rewardsPer100KSM,
+          riskScore,
+          oversubscribed,
+          name,
+          ownStake,
+          othersStake,
+        }) => ({
+          stashId,
+          commission,
+          totalStake,
+          estimatedPoolReward,
+          numOfNominators,
+          rewardsPer100KSM,
+          riskScore,
+          oversubscribed,
+          name,
+          ownStake,
+          othersStake,
+        }),
+      );
+
+      const lowRiskSortArr = sortLowRisk(arr1);
+      const medRiskSortArr = sortMedRisk(arr1);
+      const highRiskSortArr = sortHighRisk(arr1);
+
+      const result = {
+        lowriskset: lowRiskSortArr.length > 16 ? lowRiskSortArr.slice(0, 16) : lowRiskSortArr,
+        medriskset: medRiskSortArr.length > 16 ? medRiskSortArr.slice(0, 16) : medRiskSortArr,
+        highriskset: highRiskSortArr.length > 16 ? highRiskSortArr.slice(0, 16) : highRiskSortArr,
+      };
+      const ValidatorRiskSets = Container.get(networkName + 'ValidatorRiskSets') as mongoose.Model<
+        IValidatorRiskSets & mongoose.Document
+      >;
+      await ValidatorRiskSets.deleteMany({});
+      await ValidatorRiskSets.insertMany([result]);
+    } catch (e) {
+      Logger.error('🔥 Error generating risk-sets: %o', e);
+    }
+    return;
   },
 };
