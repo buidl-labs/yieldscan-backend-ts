@@ -19,6 +19,7 @@ import NominatorHistory from '../models/nominatorHistory';
 import ValidatorIdentity from '../models/validatorIdentity';
 import Council from '../models/council';
 import CouncilIdentity from '../models/councilIdentity';
+import NominatorStats from '../models/nominatorStats';
 
 import { IValidatorHistory } from '../interfaces/IValidatorHistory';
 import { ICouncilIdentity } from '../interfaces/ICouncilIdentity';
@@ -29,6 +30,7 @@ import { INominatorHistory } from '../interfaces/INominatorHistory';
 import { IActiveNominators } from '../interfaces/IActiveNominators';
 import { IValidatorIdentity } from '../interfaces/IValidatorIdentity';
 import { ICouncil } from '../interfaces/ICouncil';
+import { INominatorStats } from '../interfaces/INominatorStats';
 
 export default async (): Promise<void> => {
   const mongoConnection = await mongooseLoader();
@@ -83,6 +85,10 @@ export default async (): Promise<void> => {
             network.name + 'ValidatorIdentity',
             ValidatorIdentity,
           ),
+        },
+        {
+          name: network.name + 'NominatorStats',
+          model: mongoose.model<INominatorStats & mongoose.Document>(network.name + 'NominatorStats', NominatorStats),
         },
         {
           name: network.name + 'Council',

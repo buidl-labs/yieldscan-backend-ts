@@ -5,6 +5,7 @@ import { IStakingInfo } from '../../interfaces/IStakingInfo';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
+import { INominatorStats } from '../../interfaces/INominatorStats';
 import { wait } from '../utils';
 
 module.exports = {
@@ -139,6 +140,23 @@ module.exports = {
       }, 0);
       return networkName == 'kusama' ? a + nomtotalStake / Math.pow(10, 12) : a + nomtotalStake / Math.pow(10, 10);
     }, 0);
+
+    const NominatorStats = Container.get(networkName + 'NominatorStats') as mongoose.Model<
+      INominatorStats & mongoose.Document
+    >;
+
+    try {
+      await NominatorStats.deleteMany({});
+      await NominatorStats.insertMany([
+        {
+          nomCount: nomCount,
+          totalRewards: totalRewards,
+          totalAmountStaked: totalAmountStaked,
+        },
+      ]);
+    } catch (error) {
+      Logger.error('Error while updating active nominators stats info', error);
+    }
 
     return;
     // const lastIndex = lastIndexDB[0].eraIndex;
