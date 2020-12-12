@@ -6,6 +6,7 @@ const updateTransactionData = async (req, res, next) => {
   const Logger = Container.get('logger');
   try {
     const data = req.body;
+    console.log(JSON.stringify(data));
     const { stashId, network, alreadyBonded, stake, transactionHash, successful } = data;
 
     const TransactionData = Container.get(network + 'TransactionData') as mongoose.Model<
