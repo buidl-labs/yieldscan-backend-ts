@@ -6,6 +6,7 @@ import validator from './routes/validator';
 import council from './routes/council';
 import historic from './routes/historic';
 import twitter from './routes/twitter';
+import transactions from './routes/transactions';
 
 // guaranteed to get dependencies
 export default (): Router => {
@@ -21,6 +22,7 @@ export default (): Router => {
   historic(app);
   council(app);
   twitter(app);
+  transactions(app);
 
   return app;
 };
