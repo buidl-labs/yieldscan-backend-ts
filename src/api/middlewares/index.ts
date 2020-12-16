@@ -15,6 +15,7 @@ import top_nominator from './top_nominator';
 import lowestNominatorStake from './lowestNominatorStake';
 import nominatorStats from './nominatorStats';
 import updateTransactionData from './updateTransactionData';
+import transactionsData from './transactionsData';
 export default {
   risk_set_only,
   risk_set,
@@ -33,4 +34,5 @@ export default {
   lowestNominatorStake,
   nominatorStats,
   updateTransactionData,
+  transactionsData,
 };
