@@ -9,4 +9,5 @@ export default (app: Router): void => {
   app.use('/polkadot/transactions', route);
 
   route.get('/', middlewares.transactionsData);
+  route.get('/stats', middlewares.transactionStats);
 };
