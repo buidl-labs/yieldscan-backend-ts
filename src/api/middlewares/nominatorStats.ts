@@ -23,6 +23,7 @@ const nominatorStats = async (req, res, next) => {
         nominatorsCount: data[0].nomCount,
         totalRewards: data[0].totalRewards,
         totalAmountStaked: data[0].totalAmountStaked,
+        nomMinStake: data[0].nomMinStake,
       },
     };
 

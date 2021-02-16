@@ -4,6 +4,7 @@ const NominatorStats = new mongoose.Schema(
     nomCount: Number,
     totalRewards: Number,
     totalAmountStaked: Number,
+    nomMinStake: Number,
   },
   { timestamps: true },
 );
