@@ -1,19 +1,26 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IValidatorIdentity } from '../../interfaces/IValidatorIdentity';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
+import { isNil } from 'lodash';
 
 const updateProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
     const id = req.params.id;
     const data = req.body;
     const { vision, members } = data;
 
-    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkDetails.name + 'Validators') as mongoose.Model<
+      IStakingInfo & mongoose.Document
+    >;
     const validator = await Validators.aggregate([
       {
         $match: {
@@ -25,7 +32,7 @@ const updateProfile = async (req, res, next) => {
       throw new HttpError(404, 'No validator id found for this id');
     }
 
-    const ValidatorIdentity = Container.get(networkName + 'ValidatorIdentity') as mongoose.Model<
+    const ValidatorIdentity = Container.get(networkDetails.name + 'ValidatorIdentity') as mongoose.Model<
       IValidatorIdentity & mongoose.Document
     >;
 

@@ -1,15 +1,22 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IStakingInfo } from '../../interfaces/IStakingInfo';
-import { HttpError, getLinkedValidators } from '../../services/utils';
+import { HttpError, getLinkedValidators, getNetworkDetails } from '../../services/utils';
+import { isNil } from 'lodash';
 
 const validatorProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
     const id = req.params.id;
-    const Validators = Container.get(networkName + 'Validators') as mongoose.Model<IStakingInfo & mongoose.Document>;
+    const Validators = Container.get(networkDetails.name + 'Validators') as mongoose.Model<
+      IStakingInfo & mongoose.Document
+    >;
 
     const data = await Validators.aggregate([
       {
@@ -19,7 +26,7 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: networkName + 'accountidentities',
+          from: networkDetails.name + 'accountidentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'info',
@@ -27,7 +34,7 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: networkName + 'accountidentities',
+          from: networkDetails.name + 'accountidentities',
           localField: 'nominators.nomId',
           foreignField: 'stashId',
           as: 'nomInfo',
@@ -35,7 +42,7 @@ const validatorProfile = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: networkName + 'validatoridentities',
+          from: networkDetails.name + 'validatoridentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'additionalInfo',
@@ -50,17 +57,17 @@ const validatorProfile = async (req, res, next) => {
 
     data.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
-      x.ownStake = x.ownStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      x.totalStake = x.totalStake / Math.pow(10, networkDetails.decimalPlaces);
+      x.ownStake = x.ownStake / Math.pow(10, networkDetails.decimalPlaces);
       x.othersStake = x.totalStake - x.ownStake;
       x.numOfNominators = x.nominators.length;
-      x.estimatedPoolReward = x.estimatedPoolReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      x.estimatedPoolReward = x.estimatedPoolReward / Math.pow(10, networkDetails.decimalPlaces);
       x.name = x.info[0] !== undefined ? x.info[0].display : null;
     });
 
     const stakingInfo = data.map((x) => {
       const nominatorsInfo = x.nominators.map((y) => {
-        y.stake = x.isElected ? y.stake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)) : null;
+        y.stake = x.isElected ? y.stake / Math.pow(10, networkDetails.decimalPlaces) : null;
         const name = x.nomInfo.filter((z) => y.nomId == z.stashId);
         return { nomId: y.nomId, stake: y.stake, name: name[0] !== undefined ? name[0].display : null };
       });
@@ -152,7 +159,7 @@ const validatorProfile = async (req, res, next) => {
           })
         : [{}];
 
-    const linkedValidators = await getLinkedValidators(networkName, socialInfo[0], keyStats[0].stashId);
+    const linkedValidators = await getLinkedValidators(networkDetails.name, socialInfo[0], keyStats[0].stashId);
 
     return res
       .json({

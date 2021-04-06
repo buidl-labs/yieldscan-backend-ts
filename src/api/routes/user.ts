@@ -10,8 +10,7 @@ const corsOptions = { origin: config.domain.level };
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/kusama/user', route);
-  app.use('/polkadot/user', route);
+  app.use('/:network/user', route);
 
   route.get('/:id', middlewares.userData);
   route.put(

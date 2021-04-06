@@ -1,14 +1,19 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { INominatorStats } from '../../interfaces/INominatorStats';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
+import { isNil } from 'lodash';
 
 const nominatorStats = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const NominatorStats = Container.get(networkName + 'NominatorStats') as mongoose.Model<
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
+    const NominatorStats = Container.get(networkDetails.name + 'NominatorStats') as mongoose.Model<
       INominatorStats & mongoose.Document
     >;
     const data = await NominatorStats.find();

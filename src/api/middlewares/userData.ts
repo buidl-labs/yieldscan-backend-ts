@@ -1,15 +1,20 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
+import { isNil } from 'lodash';
 
 const userData = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
     const id = req.params.id;
-    const ActiveNominators = Container.get(networkName + 'ActiveNominators') as mongoose.Model<
+    const ActiveNominators = Container.get(networkDetails.name + 'ActiveNominators') as mongoose.Model<
       IActiveNominators & mongoose.Document
     >;
 
@@ -21,7 +26,7 @@ const userData = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: networkName + 'accountidentities',
+          from: networkDetails.name + 'accountidentities',
           localField: 'validatorsInfo.stashId',
           foreignField: 'stashId',
           as: 'info',
@@ -29,7 +34,7 @@ const userData = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: networkName + 'accountidentities',
+          from: networkDetails.name + 'accountidentities',
           localField: 'nomId',
           foreignField: 'accountId',
           as: 'nomInfo',
@@ -44,11 +49,10 @@ const userData = async (req, res, next) => {
 
     const nomName = data[0].nomInfo[0] !== undefined ? data[0].nomInfo[0].display : null;
     const totalRewards =
-      data[0].validatorsInfo.reduce((a, b) => a + b.estimatedReward, 0) /
-      (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      data[0].validatorsInfo.reduce((a, b) => a + b.estimatedReward, 0) / Math.pow(10, networkDetails.decimalPlaces);
     const totalAmountStaked =
       data[0].validatorsInfo.filter((x) => x.isElected).reduce((a, b) => a + b.nomStake, 0) /
-      (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      Math.pow(10, networkDetails.decimalPlaces);
     const validatorsInfo = data[0].validatorsInfo.map((x) => {
       const name = data[0].info.filter((valId) => valId.stashId == x.stashId);
       return {
@@ -56,13 +60,11 @@ const userData = async (req, res, next) => {
         riskScore: x.riskScore,
         isElected: x.isElected,
         isWaiting: x.isWaiting,
-        totalStake: x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)),
-        estimatedPoolReward: x.estimatedPoolReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)),
-        estimatedReward: x.isElected
-          ? x.estimatedReward / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10))
-          : null,
+        totalStake: x.totalStake / Math.pow(10, networkDetails.decimalPlaces),
+        estimatedPoolReward: x.estimatedPoolReward / Math.pow(10, networkDetails.decimalPlaces),
+        estimatedReward: x.isElected ? x.estimatedReward / Math.pow(10, networkDetails.decimalPlaces) : null,
         commission: x.commission / Math.pow(10, 7),
-        nomStake: x.nomStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10)),
+        nomStake: x.nomStake / Math.pow(10, networkDetails.decimalPlaces),
         claimedRewardEras: x.claimedRewards,
         name: name[0] !== undefined ? name[0].display : null,
       };

@@ -1,14 +1,19 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { IActiveNominators } from '../../interfaces/IActiveNominators';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
+import { isNil } from 'lodash';
 
 const nominatorsDashboard = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const ActiveNominators = Container.get(networkName + 'ActiveNominators') as mongoose.Model<
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
+    const ActiveNominators = Container.get(networkDetails.name + 'ActiveNominators') as mongoose.Model<
       IActiveNominators & mongoose.Document
     >;
     const sortedData = await ActiveNominators.aggregate([
@@ -22,7 +27,7 @@ const nominatorsDashboard = async (req, res, next) => {
       // Todo: add pagination for better performance with identity.
       // {
       //   $lookup: {
-      //     from: networkName + 'accountidentities',
+      //     from: networkDetails.name + 'accountidentities',
       //     localField: 'nomId',
       //     foreignField: 'accountId',
       //     as: 'info',
@@ -46,13 +51,13 @@ const nominatorsDashboard = async (req, res, next) => {
       const nomtotalStake = b.validatorsInfo.reduce((x, y) => {
         return y.nomStake !== (null || undefined) ? x + y.nomStake : x;
       }, 0);
-      return networkName == 'kusama' ? a + nomtotalStake / Math.pow(10, 12) : a + nomtotalStake / Math.pow(10, 10);
+      return a + nomtotalStake / Math.pow(10, networkDetails.decimalPlaces);
     }, 0);
 
     const nominatorsInfo = sortedData.map((x) => {
       const nomtotalStake =
         x.validatorsInfo.reduce((a, b) => (b.nomStake !== (null || undefined) ? a + b.nomStake : a), 0) /
-        (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+        Math.pow(10, networkDetails.decimalPlaces);
       const nominations = x.validatorsInfo.filter((val) => val.isElected).length;
       return {
         nomId: x.nomId,

@@ -1,19 +1,24 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
-import { HttpError } from '../../services/utils';
+import { HttpError, getNetworkDetails } from '../../services/utils';
 import { ICouncil } from '../../interfaces/ICouncil';
+import { isNil } from 'lodash';
 
 const councilMembers = async (req, res, next) => {
-  const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   const Logger = Container.get('logger');
+  const baseUrl = req.baseUrl;
   try {
-    const Council = Container.get(networkName + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
+    const Council = Container.get(networkDetails.name + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
 
     const data = await Council.aggregate([
       {
         $lookup: {
-          from: networkName + 'accountidentities',
+          from: networkDetails.name + 'accountidentities',
           localField: 'accountId',
           foreignField: 'accountId',
           as: 'memberIdentity',
@@ -37,9 +42,8 @@ const councilMembers = async (req, res, next) => {
     const activeMembers = data
       .filter((x) => !x.isRunnersUp)
       .map((x) => {
-        const totalBalance =
-          networkName == 'kusama' ? x.totalBalance / Math.pow(10, 12) : x.totalBalance / Math.pow(10, 10);
-        const backing = networkName == 'kusama' ? x.stake / Math.pow(10, 12) : x.stake / Math.pow(10, 10);
+        const totalBalance = x.totalBalance / Math.pow(10, networkDetails.decimalPlaces);
+        const backing = x.stake / Math.pow(10, networkDetails.decimalPlaces);
         const name = x.memberIdentity[0] !== undefined ? x.memberIdentity[0].display : null;
         const numberOfBackers = x.backersInfo.length;
         //   const backersInfo = x.backersInfo.map((y) => {
@@ -63,9 +67,8 @@ const councilMembers = async (req, res, next) => {
     const runnersUp = data
       .filter((x) => x.isRunnersUp)
       .map((x) => {
-        const totalBalance =
-          networkName == 'kusama' ? x.totalBalance / Math.pow(10, 12) : x.totalBalance / Math.pow(10, 10);
-        const backing = networkName == 'kusama' ? x.stake / Math.pow(10, 12) : x.stake / Math.pow(10, 10);
+        const totalBalance = x.totalBalance / Math.pow(10, networkDetails.decimalPlaces);
+        const backing = x.stake / Math.pow(10, networkDetails.decimalPlaces);
         const name = x.memberIdentity[0] !== undefined ? x.memberIdentity[0].display : null;
         const numberOfBackers = x.backersInfo.length;
         //   const backersInfo = x.backersInfo.map((y) => {

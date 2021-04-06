@@ -2,8 +2,10 @@ import { CustomError } from 'ts-custom-error';
 import mongoose from 'mongoose';
 import { Container } from 'typedi';
 
+import config from '../config';
 import { IStakingInfo } from '../interfaces/IStakingInfo';
 import { IAccountIdentity } from '../interfaces/IAccountIdentity';
+import { isNil } from 'lodash';
 
 export async function wait(ms: number): Promise<void> {
   return new Promise((resolve) => {
@@ -47,6 +49,16 @@ export function scaleData(val: number, max: number, min: number): number {
 
 export function normalizeData(val: number, max: number, min: number): number {
   return (val - min) / (max - min);
+}
+
+export function getNetworkDetails(baseUrl: string): any {
+  const networkUrl = baseUrl.substring(5, 8);
+  const network = config.networks.find((x) => {
+    if (x.name.includes(networkUrl)) {
+      return x.name;
+    }
+  });
+  return network;
 }
 
 export function sortLowRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {

@@ -4,8 +4,7 @@ const route = Router();
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/kusama/actors', route);
-  app.use('/polkadot/actors', route);
+  app.use('/:network/actors', route);
 
   route.get('/validators', middlewares.validatorsDashboard);
   route.get('/waiting', middlewares.waitingDashboard);

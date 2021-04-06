@@ -5,8 +5,7 @@ const route = Router();
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/kusama/transactions', route);
-  app.use('/polkadot/transactions', route);
+  app.use('/:network/transactions', route);
 
   route.get('/', middlewares.transactionsData);
   route.get('/stats', middlewares.transactionStats);

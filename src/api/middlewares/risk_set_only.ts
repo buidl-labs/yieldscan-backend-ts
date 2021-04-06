@@ -1,14 +1,19 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
 import { IValidatorRiskSets } from '../../interfaces/IValidatorRiskSets';
+import { isNil } from 'lodash';
 
 const risk_set_only = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const ValidatorRiskSets = Container.get(networkName + 'ValidatorRiskSets') as mongoose.Model<
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
+    const ValidatorRiskSets = Container.get(networkDetails.name + 'ValidatorRiskSets') as mongoose.Model<
       IValidatorRiskSets & mongoose.Document
     >;
 

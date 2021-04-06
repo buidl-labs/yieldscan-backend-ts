@@ -1,19 +1,24 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { ICouncilIdentity } from '../../interfaces/ICouncilIdentity';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
 import { ICouncil } from '../../interfaces/ICouncil';
+import { isNil } from 'lodash';
 
 const updateCouncilProfile = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
     const id = req.params.id;
     const data = req.body;
     const { vision, members } = data;
 
-    const Council = Container.get(networkName + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
+    const Council = Container.get(networkDetails.name + 'Council') as mongoose.Model<ICouncil & mongoose.Document>;
     const councilMember = await Council.aggregate([
       {
         $match: {
@@ -25,7 +30,7 @@ const updateCouncilProfile = async (req, res, next) => {
       throw new HttpError(404, 'No active council member id found for this id');
     }
 
-    const CouncilIdentity = Container.get(networkName + 'CouncilIdentity') as mongoose.Model<
+    const CouncilIdentity = Container.get(networkDetails.name + 'CouncilIdentity') as mongoose.Model<
       ICouncilIdentity & mongoose.Document
     >;
 

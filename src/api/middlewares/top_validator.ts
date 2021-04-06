@@ -2,15 +2,20 @@ import { Container } from 'typedi';
 import mongoose from 'mongoose';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 // import { sortLowRisk, sortMedRisk } from '../../services/utils'
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
+import { isNil } from 'lodash';
 
 const top_validator = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const TotalRewardHistory = Container.get(networkName + 'TotalRewardHistory') as mongoose.Model<
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
+    const TotalRewardHistory = Container.get(networkDetails.name + 'TotalRewardHistory') as mongoose.Model<
       ITotalRewardHistory & mongoose.Document
     >;
     const lastIndexDB = await TotalRewardHistory.find({}).sort({ eraIndex: -1 }).limit(1);
@@ -18,7 +23,7 @@ const top_validator = async (req, res, next) => {
     const eraIndex = lastIndexDB[0].eraIndex;
     const eraTotalReward = lastIndexDB[0].eraTotalReward;
 
-    const ValidatorHistory = Container.get(networkName + 'ValidatorHistory') as mongoose.Model<
+    const ValidatorHistory = Container.get(networkDetails.name + 'ValidatorHistory') as mongoose.Model<
       IValidatorHistory & mongoose.Document
     >;
     const sortedData = await ValidatorHistory.aggregate([
@@ -37,7 +42,7 @@ const top_validator = async (req, res, next) => {
       },
       {
         $lookup: {
-          from: networkName + 'accountidentities',
+          from: networkDetails.name + 'accountidentities',
           localField: 'stashId',
           foreignField: 'stashId',
           as: 'info',
@@ -52,10 +57,9 @@ const top_validator = async (req, res, next) => {
 
     sortedData.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      x.totalStake = x.totalStake / Math.pow(10, networkDetails.decimalPlaces);
       x.estimatedPoolReward =
-        ((x.eraPoints / x.totalEraPoints) * eraTotalReward) /
-        (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+        ((x.eraPoints / x.totalEraPoints) * eraTotalReward) / Math.pow(10, networkDetails.decimalPlaces);
     });
     const result = sortedData.map(({ stashId, commission, totalStake, estimatedPoolReward, info, eraIndex }) => ({
       stashId,

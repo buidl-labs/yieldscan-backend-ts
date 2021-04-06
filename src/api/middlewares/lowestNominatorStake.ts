@@ -1,15 +1,20 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
+import { isNil } from 'lodash';
 
 const lowestNominatorStake = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
     const era = parseInt(req.params.era);
-    const ValidatorHistory = Container.get(networkName + 'ValidatorHistory') as mongoose.Model<
+    const ValidatorHistory = Container.get(networkDetails.name + 'ValidatorHistory') as mongoose.Model<
       IValidatorHistory & mongoose.Document
     >;
 
@@ -36,9 +41,9 @@ const lowestNominatorStake = async (req, res, next) => {
 
     const validatorInfo = data.map((x) => {
       x.commission = x.commission / Math.pow(10, 7);
-      x.totalStake = x.totalStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+      x.totalStake = x.totalStake / Math.pow(10, networkDetails.decimalPlaces);
       x.nominatorsInfo = x.nominatorsInfo.map((nom) => {
-        nom.nomStake = nom.nomStake / (networkName == 'kusama' ? Math.pow(10, 12) : Math.pow(10, 10));
+        nom.nomStake = nom.nomStake / Math.pow(10, networkDetails.decimalPlaces);
         return { nomId: nom.nomId, nomStake: nom.nomStake };
       });
       return {

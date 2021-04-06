@@ -11,8 +11,7 @@ const corsOptions = { origin: config.domain.level };
 
 export default (app: Router): void => {
   // Register our endpoint for this route-apis
-  app.use('/kusama/validator', route);
-  app.use('/polkadot/validator', route);
+  app.use('/:network/validator', route);
 
   route.get('/multi', middlewares.validatorsInfo);
   route.get('/:id', middlewares.validatorProfile);

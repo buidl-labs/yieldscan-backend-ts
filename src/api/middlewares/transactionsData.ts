@@ -1,15 +1,19 @@
 import { Container } from 'typedi';
 import mongoose from 'mongoose';
-import { HttpError } from '../../services/utils';
+import { getNetworkDetails, HttpError } from '../../services/utils';
 import { ITransactionData } from '../../interfaces/ITransactionData';
 import { isNil } from 'lodash';
 
 const transactionsData = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
-  const networkName = baseUrl.includes('polkadot') ? 'polkadot' : 'kusama';
   try {
-    const TransactionData = Container.get(networkName + 'TransactionData') as mongoose.Model<
+    const networkDetails = getNetworkDetails(baseUrl);
+    if (isNil(networkDetails)) {
+      Logger.error('🔥 No Data found: %o');
+      throw new HttpError(404, 'Network Not found');
+    }
+    const TransactionData = Container.get(networkDetails.name + 'TransactionData') as mongoose.Model<
       ITransactionData & mongoose.Document
     >;
 
