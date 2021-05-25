@@ -38,7 +38,7 @@ const nominatorsDashboard = async (req, res, next) => {
           dailyEarnings: -1,
         },
       },
-    ]);
+    ]).allowDiskUse(true);
 
     if (sortedData.length == 0) {
       Logger.error('🔥 No Data found: %o');
