@@ -25,7 +25,7 @@ const transactionStats = async (req, res, next) => {
     }
 
     const result = sortedData
-      .filter((x) => !isNil(x.transactionHash))
+      .filter((x) => !isNil(x.transactionHash) && x.successful)
       .map(({ stashId, network, alreadyBonded, stake, transactionHash, successful, createdAt }) => ({
         stashId,
         network,
