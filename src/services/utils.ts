@@ -127,6 +127,15 @@ export function sortHighRisk(arr: Array<IStakingInfo>): Array<IStakingInfo> {
 //   });
 // }
 
+export function chunkArray(array: Array<unknown>, size: number): Array<unknown> {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    const chunk = array.slice(i, i + size);
+    result.push(chunk);
+  }
+  return result;
+}
+
 export class HttpError extends CustomError {
   public constructor(public code: number, message?: string) {
     super(message);
