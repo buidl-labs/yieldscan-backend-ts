@@ -5,7 +5,8 @@
   "main": "src/app.ts",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon",
+    "start": "ts-node  --transpile-only ./src/app.ts",
+    "dev": "nodemon",
     "inspect": "nodemon --inspect src/app.ts",
     "test": "jest",
     "lint": "npm run lint:js ",
