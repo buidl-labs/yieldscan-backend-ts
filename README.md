@@ -14,7 +14,7 @@ We are always working on improving our codebase, and welcome any suggestions or 
 
 2. Fork the repo and make changes.
 
-3. Make a PR to `devlop` branch.
+3. Make a PR.
 
 ### Codebase Overview:
 
@@ -90,7 +90,7 @@ npm run start
 You can run a docker container via -
 
 ```
-docker run -e MONGODB_URI=<your mongodb connection url> -t sahilnanda/yieldscan-crawler
+docker run -e MONGODB_URI=<your mongodb connection url> -t sahilnanda/yieldscan-api
 ```
 
 ## Tests:
