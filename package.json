@@ -21,7 +21,6 @@
     "kusama"
   ],
   "dependencies": {
-    "@polkadot/api": "^1.34.0-beta.12",
     "body-parser": "^1.19.0",
     "celebrate": "^12.1.1",
     "cors": "^2.8.5",
@@ -30,11 +29,11 @@
     "event-dispatch": "^0.4.1",
     "eventemitter3": "^4.0.4",
     "express": "^4.17.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "method-override": "^3.0.0",
     "moment": "^2.27.0",
     "moment-timezone": "^0.5.31",
-    "mongoose": "^5.9.21",
+    "mongoose": "^5.13.0",
     "reflect-metadata": "^0.1.13",
     "ts-custom-error": "^3.1.1",
     "typedi": "^0.8.0",
