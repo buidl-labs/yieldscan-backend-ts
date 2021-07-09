@@ -17,6 +17,7 @@ import nominatorStats from './nominatorStats';
 import updateTransactionData from './updateTransactionData';
 import transactionsData from './transactionsData';
 import transactionStats from './transactionStats';
+import nominatorHistory from './nominatorHistory';
 export default {
   risk_set_only,
   risk_set,
@@ -37,4 +38,5 @@ export default {
   updateTransactionData,
   transactionsData,
   transactionStats,
+  nominatorHistory,
 };
