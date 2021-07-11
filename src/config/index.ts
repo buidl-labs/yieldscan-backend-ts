@@ -52,6 +52,7 @@ export default {
       decimalPlaces: 10,
       erasPerDay: 1,
       lockUpPeriod: 28,
+      maxNomAllowed: 256,
       testnet: false,
     },
     {
@@ -60,6 +61,7 @@ export default {
       decimalPlaces: 12,
       erasPerDay: 4,
       lockUpPeriod: 7,
+      maxNomAllowed: 128,
       testnet: false,
     },
     {
@@ -68,6 +70,7 @@ export default {
       decimalPlaces: 12,
       erasPerDay: 4,
       lockUpPeriod: 7,
+      maxNomAllowed: 128,
       testnet: true,
     },
   ],

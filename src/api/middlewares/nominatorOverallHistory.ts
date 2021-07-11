@@ -6,7 +6,7 @@ import { isNil } from 'lodash';
 import { IValidatorHistory } from '../../interfaces/IValidatorHistory';
 import { ITotalRewardHistory } from '../../interfaces/ITotalRewardHistory';
 
-const nominatorHistory = async (req, res, next) => {
+const nominatorOverallHistory = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
   const queryId = req.query?.id;
@@ -35,9 +35,6 @@ const nominatorHistory = async (req, res, next) => {
       },
       {
         $sort: { eraIndex: -1 },
-      },
-      {
-        $limit: 30 * networkDetails.erasPerDay,
       },
       {
         $addFields: { othersStake: { $sum: '$nominatorsInfo.nomStake' } },
@@ -115,4 +112,4 @@ const nominatorHistory = async (req, res, next) => {
   }
 };
 
-export default nominatorHistory;
+export default nominatorOverallHistory;

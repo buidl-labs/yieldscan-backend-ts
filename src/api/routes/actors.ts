@@ -11,4 +11,5 @@ export default (app: Router): void => {
   route.get('/nominators', middlewares.nominatorsDashboard);
   route.get('/nominator/stats', middlewares.nominatorStats);
   route.get('/nominator/history', middlewares.nominatorHistory);
+  route.get('/nominator/overall_history', middlewares.nominatorOverallHistory);
 };
