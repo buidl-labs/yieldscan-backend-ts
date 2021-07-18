@@ -10,11 +10,19 @@ const nominatorHistory = async (req, res, next) => {
   const Logger = Container.get('logger');
   const baseUrl = req.baseUrl;
   const queryId = req.query?.id;
+  const activeEra = Number(req.query?.activeEra);
+
   try {
     if (isNil(queryId)) {
       Logger.error('🔥 No Data found: %o');
       throw new HttpError(404, 'Network Not found');
     }
+
+    if (isNaN(activeEra) || activeEra === 0) {
+      Logger.error('🔥 Invalid active era: %o');
+      throw new HttpError(404, 'Invalid active era');
+    }
+
     const networkDetails = getNetworkDetails(baseUrl);
     if (isNil(networkDetails)) {
       Logger.error('🔥 No Data found: %o');
@@ -28,17 +36,21 @@ const nominatorHistory = async (req, res, next) => {
       ITotalRewardHistory & mongoose.Document
     >;
 
+    const erasInAMonth = networkDetails.erasPerDay * 30;
+
+    const erasArray = [...Array(erasInAMonth).keys()].map((i) => activeEra - 1 - i);
+
     const historyData = await ValidatorHistory.aggregate([
       // { $unwind: '$nominatorsInfo' },
       {
-        $match: { 'nominatorsInfo.nomId': queryId },
+        $match: { $and: [{ eraIndex: { $in: erasArray } }, { 'nominatorsInfo.nomId': queryId }] },
       },
       {
         $sort: { eraIndex: -1 },
       },
-      {
-        $limit: 30 * networkDetails.erasPerDay,
-      },
+      // {
+      //   $limit: 30 * networkDetails.erasPerDay,
+      // },
       {
         $addFields: { othersStake: { $sum: '$nominatorsInfo.nomStake' } },
       },
@@ -58,7 +70,7 @@ const nominatorHistory = async (req, res, next) => {
 
     if (historyData.length === 0) {
       Logger.error('🔥 No Data found: %o');
-      throw new HttpError(404, 'Network Not found');
+      throw new HttpError(404, 'No Data found');
     }
 
     const eraIndexArr = historyData.map((x) => x.eraIndex);
