@@ -7,6 +7,7 @@ import council from './routes/council';
 import historic from './routes/historic';
 import twitter from './routes/twitter';
 import transactions from './routes/transactions';
+import eraHistory from './routes/eraHistory';
 
 // guaranteed to get dependencies
 export default (): Router => {
@@ -23,6 +24,7 @@ export default (): Router => {
   council(app);
   twitter(app);
   transactions(app);
+  eraHistory(app);
 
   return app;
 };
