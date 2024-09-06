@@ -33,12 +33,12 @@
     "lodash": "^4.17.20",
     "method-override": "^3.0.0",
     "moment": "^2.27.0",
-    "moment-timezone": "^0.5.31",
-    "mongoose": "^5.9.21",
+    "moment-timezone": "^0.5.41",
+    "mongoose": "^5.12.4",
     "reflect-metadata": "^0.1.13",
     "ts-custom-error": "^3.1.1",
     "typedi": "^0.8.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.4"
   },
   "devDependencies": {
     "@types/cors": "^2.8.7",
